@@ -1,0 +1,210 @@
+import 'package:e_document_request/screens/cartPayWithCard.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+class CartScreen extends StatelessWidget {
+  const CartScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Container(
+          padding: EdgeInsets.symmetric(horizontal: 28.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 30,
+              ),
+              onScreenBackButton(),
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    const Text(
+                      "Items in Cart",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Text(
+                      "Here are the list of documents in your cart. Proceed to Pay",
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    itemInCart("Activation License", "12,500"),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    itemInCart("Online Acknowledged Slip", "12,500"),
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    cartSummary(),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    cartTotal("25,075"),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    proceedButton(context)
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget onScreenBackButton() {
+  return Row(
+    children: [
+      Icon(
+        Icons.arrow_back_rounded,
+        color: Color(0xFF24985B),
+        size: 20,
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Text(
+        "Back",
+        style: TextStyle(color: Color(0xFF24985B), fontSize: 20),
+      )
+    ],
+  );
+}
+
+Widget itemInCart(String title, String price) {
+  return Container(
+    padding: const EdgeInsets.all(15),
+    decoration: BoxDecoration(
+        border: Border.all(width: 0.5, color: Colors.grey),
+        borderRadius: BorderRadius.circular(5)),
+    child: Row(
+      children: [
+        Expanded(
+            child: Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+        )),
+        Text(
+          "₦$price",
+          style: TextStyle(
+              color: Color(0xFF24985B),
+              fontWeight: FontWeight.w600,
+              fontSize: 15),
+        )
+      ],
+    ),
+  );
+}
+
+Widget cartSummary() {
+  return Container(
+    padding: const EdgeInsets.all(15),
+    decoration: BoxDecoration(
+        border: Border.all(width: 0.5, color: Colors.grey),
+        borderRadius: BorderRadius.circular(5)),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Cart Summary",
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        const Divider(
+          height: 1,
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        cartSummaryContent("Subtotal", "25,075"),
+        const SizedBox(
+          height: 30,
+        ),
+        cartSummaryContent("Delivery Fee", "3,000")
+      ],
+    ),
+  );
+}
+
+Widget cartSummaryContent(String title, String price) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        title,
+        style: TextStyle(color: Color(0xff9CA3B9), fontSize: 18),
+      ),
+      Text(
+        "₦$price",
+        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+      ),
+    ],
+  );
+}
+
+Widget cartTotal(String price) {
+  return Container(
+    padding: EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(5),
+      color: Color(0xffE9F5EF),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Total",
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+        ),
+        Text(
+          "₦$price",
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 25,
+              color: Color(0xFF24985B)),
+        )
+      ],
+    ),
+  );
+}
+
+Widget proceedButton(BuildContext context) {
+  return Container(
+    width: double.infinity,
+    height: 56.h,
+    child: OutlinedButton(
+      style: OutlinedButton.styleFrom(
+          backgroundColor: Color(0xFF24985B),
+          shape: RoundedRectangleBorder(
+              side: BorderSide.none, borderRadius: BorderRadius.circular(5.r))),
+      onPressed: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => CartPayWithCard()));
+      },
+      child: Text(
+        "Proceed to Pay",
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+      ),
+    ),
+  );
+}
