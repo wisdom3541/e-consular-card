@@ -1,9 +1,14 @@
+import 'package:e_document_request/providers/login_screen_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
-import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:e_document_request/screens/forgotPassword.dart';
 import 'package:e_document_request/screens/homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/login_screen_provider.dart';
+
+typedef ValidatorFunction = String? Function(String? input);
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -27,13 +32,13 @@ class LoginScreen extends StatelessWidget {
                      Text(
                       "Welcome Back",
                       style:
-                          TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
+                          TextStyle(fontSize: 25.sp, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(
                       height: 5,
                     ),
                      Text(
-                      "To get started, let’s create an account.",
+                      "Enter your credentials",
                       style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w500,
@@ -68,19 +73,24 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
 
+
+
   @override
   Widget build(BuildContext context) {
+
+      var loginScreenProvider = Provider.of<LoginScreenProvider>(context);
+
     return Container(
       child: Form(
         key: _formKey,
         child: Column(
           children: [
-            textFieldForForm("Email*", "Enter your email", "Required"),
-            SizedBox(
+            emailTextFieldForForm("Email*", "Enter your email", "Required",loginScreenProvider.emailController),
+            const SizedBox(
               height: 20,
             ),
-            textFieldForForm("Password*", "Create a password", "Required"),
-            SizedBox(
+            passwordTextField("Password*", "Create a password",loginScreenProvider.passwordController),
+            const SizedBox(
               height: 20,
             ),
             Align(
@@ -89,14 +99,14 @@ class _LoginFormState extends State<LoginForm> {
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=> ForgotPassword()));
                   },
-                    child: Text(
+                    child: const Text(
                   "Recover Password?",
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: Color(0xff48A876)),
                 ))),
-            SizedBox(
+            const SizedBox(
               height: 50,
             ),
             Container(
@@ -173,5 +183,85 @@ Widget createAnAccount(BuildContext context) {
         ],
       ),
     ),
+  );
+}
+
+
+Widget emailTextFieldForForm(String titleText, String hintText, String errorMessageText , TextEditingController controller){
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(titleText),
+      SizedBox(
+        height: 10,
+      ),
+      TextFormField(
+        decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(color: Colors.grey),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)))),
+        // keyboardType: TextInputType.emailAddress,
+        validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email';
+              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Please enter a valid email';
+              }
+              return null;
+            },
+        onSaved: (value) {
+          //_email = value ?? '';
+        },
+      ),
+    ],
+  );
+}
+
+String? validateEmail(String? email, {bool allowTopLevelDomain = false}) {
+  if (email == null || email.isEmpty) {
+    return 'Email is required';
+  }
+
+  final regex = allowTopLevelDomain
+      ? RegExp(r'^[a-zA-Z0-9.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+      : RegExp(r'^[a-zA-Z0-9.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$');
+
+  if (!regex.hasMatch(email)) {
+    return 'Enter a valid email address';
+  }
+
+  return null; // Return null if valid
+}
+
+
+Widget passwordTextField(String title, String hint,
+    TextEditingController controller,) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(title, style: TextStyle(fontSize: 14.sp)),
+      SizedBox(height: 10.h),
+      TextFormField(
+        controller: controller,
+        obscureText: true,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.r)),
+          ),
+        ),
+        validator: (value){
+          if (value == null ||
+      !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$')
+          .hasMatch(value)) {
+    return 'Password must include:\n- 1 uppercase letter\n- 1 number\n- 1 special character\n- 8+ characters';
+  }
+  return null;
+        },
+        //  onSaved: (value) => controller.text = value ?? '',
+      ),
+    ],
   );
 }

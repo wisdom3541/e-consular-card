@@ -1,85 +1,55 @@
-import 'dart:async';
-import 'dart:ffi';
-
-import 'package:e_document_request/screens/accountCreatedSuccessfully.dart';
+import 'package:e_document_request/models/register_user.dart';
+import 'package:e_document_request/providers/create_acccount_with_nin_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
+import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:e_document_request/screens/otpScreen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-class Createaccountwithnin extends StatelessWidget {
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+class CreateAccountWithNIN extends StatelessWidget {
+  const CreateAccountWithNIN({super.key});
+
   @override
   Widget build(BuildContext context) {
-    var appState = Provider.of<CreateAccountWithNINAppState>(context);
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
           children: [
             appBar(),
-            const SizedBox(
-              height: 50.0,
-            ),
-            const Text(
-              "Enter Your NIN/Passport Number",
-              style: TextStyle(
-                  fontSize: 20.0,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            const Text(
-              "Get your account ready to get any\nconfidential document you need to.",
-              style: TextStyle(fontSize: 15.0, color: Colors.grey),
-            ),
-            const SizedBox(
-              height: 30.0,
-            ),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Column(
                 children: [
-                  formField(context),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  formFieldText(context, TextInputType.number),
-                  const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Dial *510*1# to get your NIN",
-                        style: TextStyle(color: Colors.grey, fontSize: 15),
-                      )),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Visibility(
-                    visible: appState.nameVisibility,
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      color: Color.fromRGBO(223, 245, 239, 100),
-                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                      child: const Text(
-                        "Dannon Groups",
-                        style: TextStyle(
-                          color: Color.fromRGBO(36, 152, 91, 100),
-                        ),
-                      ),
+                  SizedBox(height: 30.h),
+                  Text(
+                    "Create an account",
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(
-                    height: 50.0,
+                  SizedBox(height: 10.h),
+                  Text(
+                    "Get your account ready to get any confidential\ndocument you need to.",
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  createAccountButton(context)
+                  SizedBox(height: 30.h),
+                  const CreateAccountWithNinForm(),
+                  SizedBox(height: 20.h),
+                  Align(
+                    alignment: Alignment.center,
+                    child: alreadyHaveAccount(context),
+                  ),
+                  SizedBox(height: 20.h),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -87,161 +57,231 @@ class Createaccountwithnin extends StatelessWidget {
   }
 }
 
-class CreateAccountWithNINAppState extends ChangeNotifier {
-   final TextEditingController _controller = TextEditingController();
-  String createAccountOption = "National Identity Number";
-  String buttonValue = "Create Account.";
-  bool nameVisibility = false;
-  bool nameRetrieved = false;
-
-
-  void updateCreateAccountDropdownOption(String value) {
-    print(value.toString());
-    createAccountOption = value;
-    notifyListeners();
-  }
-
-  void createAccountButtonOnClick() {
-    buttonValue = " Fetching Information...";
-    notifyListeners();
-
-    Timer(const Duration(milliseconds: 3000), () {
-      nameVisibility = true;
-      updateName();
-      buttonValue = "Create Account.";
-      notifyListeners();
-    });
-  }
+class CreateAccountWithNinForm extends StatefulWidget {
+  const CreateAccountWithNinForm({super.key});
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-    notifyListeners();
-  }
-
-  void createAccountFinalOnClick(BuildContext context) {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => OtpScreen(otpType: "Enter OTP sent to your number", otpMessage: "We sent an OTP to the number linked to your\nNIN, Kindly use it to verify and continue", nextPage: Accountcreatedsuccessfully(),)));
-    notifyListeners();
-  }
-
-  void updateName(){
-    nameRetrieved = true;
-    notifyListeners();
-  }
-
-
-  void createAccountButtonSelect( BuildContext context){
-    if(nameRetrieved){
-      createAccountFinalOnClick(context);
-      notifyListeners();
-    }else{
-      createAccountButtonOnClick();
-      notifyListeners();
-    }
-  }
+  _CreateAccountWithNinForm createState() => _CreateAccountWithNinForm();
 }
 
-Widget formField(BuildContext context) {
-  var appState = Provider.of<CreateAccountWithNINAppState>(context);
-  var dropDownOption = appState.createAccountOption;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        "Choose Identification Type",
-        style: TextStyle(color: Colors.black, fontSize: 14.0),
-      ),
-      const SizedBox(
-        height: 5,
-      ),
-      Container(
-        constraints: BoxConstraints(minWidth: double.infinity),
-        decoration: BoxDecoration(
-            border: Border.all(
-              width: 1,
-              color: Colors.grey,
+TextEditingController passwordController = TextEditingController();
+TextEditingController confirmPasswordController = TextEditingController();
+
+class _CreateAccountWithNinForm extends State<CreateAccountWithNinForm> {
+  final _formKey = GlobalKey<FormState>();
+  String _nin = '';
+  String _email = '';
+  String _password = '';
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = Provider.of<CreateAcccountWithNinProvider>(context);
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text("Email*", style: TextStyle(fontSize: 14.sp)),
+          SizedBox(height: 10.h),
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: "Enter you Email",
+              hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.r)),
+              ),
             ),
-            borderRadius: BorderRadius.circular(10)),
-        child: DropdownButton<String>(
-          //style: TextStyle(fontWeight: FontWeight.w400),
-          underline: const SizedBox.shrink(),
-          isExpanded: true,
-          // Expands the dropdown to full width
-          value: appState.createAccountOption,
-          // Currently selected value
-          items: <String>[
-            'National Identity Number',
-            'Passport Number',
-          ].map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w400,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email';
+              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Please enter a valid email';
+              }
+              return null;
+            },
+            onSaved: (value) => _email = value ?? '',
+          ),
+          SizedBox(height: 16.h),
+          Text("National Identity Number(NIN)*",
+              style: TextStyle(fontSize: 14.sp)),
+          SizedBox(height: 10.h),
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: "Enter your NIN",
+              hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.r)),
+              ),
+            ),
+            validator: (value) {
+              if (value == null || value.length != 11) {
+                return 'NIN must be 11 characters';
+              }
+              return null;
+            },
+            onSaved: (value) => _nin = value ?? '',
+          ),
+          SizedBox(height: 16.h),
+          passwordField("Password*", "Create a Password", passwordController,
+              passwordValidation),
+          SizedBox(height: 16.h),
+          passwordField("Confirm Password*", "Confirm  Password",
+              confirmPasswordController, cofirmPasswordValidation),
+          SizedBox(height: 30.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  //If valid, save form values
+                  _formKey.currentState!.save();
+                  var password = passwordController.text;
+                  print("Email: $_email");
+                  print("nin: $_nin");
+                  print("Password: $password");
+
+                  var registerUser = RegisterUser(
+                      emailAddress: _email, nin: _nin, password: password);
+
+                  _showLoadingSpinner(context);
+                  await appState.createAccountOnClick(context, registerUser);
+
+                  Navigator.of(context).pop();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Form submitted successfully!')),
+                  );
+
+                  //confirmPasswordController.dispose();
+                  //passwordController.dispose();
+
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OtpScreen(
+                              otpType: "Enter OTP sent to your mail",
+                              otpMessage:
+                                  "We sent an OTP to your email to verify your account",
+                              nextPage: Enteryourdetails(),
+                            )),
+                  );
+                } else {
+                  // If validation failed
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please fix the errors')),
+                  );
+                }
+              },
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
               ),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            appState.updateCreateAccountDropdownOption(newValue!);
-          },
-        ),
+              child: Text(
+                "Create Account",
+                style: TextStyle(color: Colors.white, fontSize: 16.sp),
+              ),
+            ),
+          ),
+        ],
       ),
-    ],
-  );
+    );
+  }
 }
 
-Widget formFieldText(BuildContext context, TextInputType textInputType) {
-  var appState = Provider.of<CreateAccountWithNINAppState>(context);
+Widget passwordField(String title, String hint,
+    TextEditingController controller, String? Function(String? value) function) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text("Enter Number"),
-      TextField(
-        onSubmitted: (String value){
-
-        },
-        controller: appState._controller,
-        keyboardType: TextInputType.number,
-        maxLength: 10,
+      Text(title, style: TextStyle(fontSize: 14.sp)),
+      SizedBox(height: 10.h),
+      TextFormField(
+        controller: controller,
+        obscureText: true,
         decoration: InputDecoration(
-            hintText: "0123456789",
-            hintStyle: TextStyle(color: Colors.grey),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)))),
-      )
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.r)),
+          ),
+        ),
+        validator: function,
+        //  onSaved: (value) => controller.text = value ?? '',
+      ),
     ],
   );
 }
 
-Widget createAccountButton(BuildContext context) {
-  var appState = Provider.of<CreateAccountWithNINAppState>(context);
-  return Container(
-    width: double.infinity,
-    height: 50,
-    child: FilledButton(
-      onPressed: () {
-        appState.createAccountButtonSelect(context);
-      },
-      child: Text(
-        appState.buttonValue,
-        style: TextStyle(color: Colors.white),
-      ),
-      style: ButtonStyle(
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-          backgroundColor: MaterialStateProperty.all<Color>(
-            Colors.green,
+String? passwordValidation(String? val) {
+  if (val == null ||
+      !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$')
+          .hasMatch(val)) {
+    return 'Password must include:\n- 1 uppercase letter\n- 1 number\n- 1 special character\n- 8+ characters';
+  }
+  return null;
+}
+
+String? cofirmPasswordValidation(String? val) {
+  if (val == null ||
+      passwordController.text != confirmPasswordController.text) {
+    return 'Password does not match';
+  }
+  return null;
+}
+
+// Function to show a circular loader for 3 seconds
+void _showLoadingSpinner(BuildContext context) {
+  // Show the dialog
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Prevent dismissal by tapping outside
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: const SizedBox(
+          height: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 20),
+              Text("Please wait...", style: TextStyle(fontSize: 16)),
+            ],
           ),
-          foregroundColor: MaterialStateProperty.all<Color>(
-            Colors.white,
-          )),
-    ),
+        ),
+      );
+    },
   );
 }
+
+// Widget createAccountButton(BuildContext context) {
+//   var appState = Provider.of<CreateAcccountWithNinProvider>(context);
+//   return Container(
+//     width: double.infinity,
+//     height: 50,
+//     child: FilledButton(
+//       onPressed: () {
+//         appState.createAccountButtonSelect(context);
+//       },
+//       child: Text(
+//         appState.buttonValue,
+//         style: TextStyle(color: Colors.white),
+//       ),
+//       style: ButtonStyle(
+//           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+//               RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+//           backgroundColor: MaterialStateProperty.all<Color>(
+//             Colors.green,
+//           ),
+//           foregroundColor: MaterialStateProperty.all<Color>(
+//             Colors.white,
+//           )),
+//     ),
+//   );
+// }

@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:e_document_request/core/api_service.dart';
 import 'package:e_document_request/screens/createAccountWithNIN.dart';
 import 'package:e_document_request/screens/createAccountWithoutNIN.dart';
 import 'package:e_document_request/screens/loginScreen.dart';
@@ -39,7 +40,8 @@ class CreateAccount extends StatelessWidget {
               ),
               Text(
                 "Get your account ready to get any confidential document you need to.",
-                style: TextStyle(fontSize: 19.sp, color: Colors.grey, fontFamily: "Roboto"),
+                style: TextStyle(
+                    fontSize: 19.sp, color: Colors.grey, fontFamily: "Roboto"),
                 textAlign: TextAlign.center,
               ),
               SizedBox(
@@ -50,14 +52,15 @@ class CreateAccount extends StatelessWidget {
                 child: Column(
                   children: [
                     accountCreationMethodButton(
-                        "Register with your NIN or Passport Number,Request for a card quicker",
+                        "Register with your NIN,\nRequest for a card quicker",
                         Color(0xff24985B),
                         Colors.white,
-                        Colors.white, () {
+                        Colors.white,  () {
+                      ApiService().grantAuth(context);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Createaccountwithnin()));
+                              builder: (context) => const CreateAccountWithNIN()));
                     }),
                     SizedBox(height: 27.h),
                     accountCreationMethodButton(
@@ -77,7 +80,6 @@ class CreateAccount extends StatelessWidget {
                 height: 50.h,
               ),
               alreadyHaveAccount(context),
-
             ],
           )
         ],

@@ -1,7 +1,9 @@
+import 'package:e_document_request/providers/verify_nin_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
 import 'package:e_document_request/screens/enterYourDetails2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Enteryourdetails extends StatelessWidget {
   const Enteryourdetails({super.key});
@@ -14,14 +16,14 @@ class Enteryourdetails extends StatelessWidget {
           children: [
             appBar(),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 50,
                   ),
-                  Align(
+                  const Align(
                     alignment: Alignment.center,
                     child: Column(children: [
                       Text("Enter Your Details",
@@ -39,35 +41,35 @@ class Enteryourdetails extends StatelessWidget {
                       ),
                     ]),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
-                  Text("Passport Picture*"),
-                  Icon(
+                  const Text("Passport Picture*"),
+                  const Icon(
                     Icons.person_outline,
                     size: 80,
                    fill: 1,
                     color: Colors.black,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
-                  OutlinedButton(onPressed: () {}, child: takePhoto(), style: OutlinedButton.styleFrom(
+                  OutlinedButton(onPressed: () {}, style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5)
                     )
-                  ),),
-                  SizedBox(height: 5),
+                  ), child: takePhoto(),),
+                  const SizedBox(height: 5),
                   uplaodPicture(),
-                  SizedBox(height: 10,),
-                  Divider(thickness: 2,),
-                  SizedBox(height: 20),
-                  enterDetailsForm(),
-                  SizedBox(height: 30,),
+                  const SizedBox(height: 10,),
+                  const Divider(thickness: 2,),
+                  const SizedBox(height: 20),
+                  const enterDetailsForm(),
+                  const SizedBox(height: 30,),
                   Align(
                       alignment: Alignment.center,
                       child: alreadyHaveAccount(context)),
-                  SizedBox(height: 50,)
+                  const SizedBox(height: 50,)
                 ],
               ),
             )
@@ -80,7 +82,7 @@ class Enteryourdetails extends StatelessWidget {
 
 Widget takePhoto() {
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     child: Container(
       width: 120,
       child: const Row(
@@ -107,12 +109,12 @@ Widget uplaodPicture(){
     width: 250,
     alignment: Alignment.centerLeft,
     decoration: BoxDecoration(
-        color: Color.fromRGBO(223, 245, 239, 100)
+        color: const Color.fromRGBO(223, 245, 239, 100)
         ,
       borderRadius: BorderRadius.circular(5)
     ),
 
-    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
     child: const Text(
       "Upload Picture from Computer",
       style: TextStyle(
@@ -129,6 +131,7 @@ class enterDetailsForm extends StatefulWidget {
   @override
   State<enterDetailsForm> createState() => _enterDetailsFormState();
 }
+  bool editable = false;
 
 class _enterDetailsFormState extends State<enterDetailsForm> {
 
@@ -138,29 +141,33 @@ class _enterDetailsFormState extends State<enterDetailsForm> {
   String _name = '';
   String _email = '';
 
+
+
   @override
   Widget build(BuildContext context) {
+
+    var vnp = Provider.of<VerifyNinProvider>(context);
     return Container(
       child: Form(
         key: _formKey,
         child: Column(
           //crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          textFieldForForm("First Name*","Enter your first name", "Required"),
-          SizedBox(height: 20,),
-          textFieldForForm("Last Name*","Enter your last name", "Required"),
-          SizedBox(height: 20,),
-          textFieldForForm("Middle Name*","Enter your middle name", "Optional"),
-          SizedBox(
+          textFieldForForm("First Name*","Enter your first name", "Required",vnp.firstnameController,editable),
+          const SizedBox(height: 20,),
+          textFieldForForm("Last Name*","Enter your last name", "Required",vnp.surnameController,editable),
+          const SizedBox(height: 20,),
+          textFieldForForm("Middle Name*","Enter your middle name", "Optional",vnp.middlenameController,editable),
+          const SizedBox(
             height: 20,
           ),
-          Align(
+          const Align(
               alignment: Alignment.centerLeft,
               child: Text("Gender")),
-          SizedBox(height: 10,),
+          const SizedBox(height: 10,),
           genderDropDown(),
 
-          SizedBox(height: 50,),
+          const SizedBox(height: 50,),
           Container(
             width: double.infinity,
             child: ElevatedButton(
@@ -177,7 +184,7 @@ class _enterDetailsFormState extends State<enterDetailsForm> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Enteryourdetails2()));
+                          builder: (context) => const Enteryourdetails2()));
 
                   // You can display a success message using a Snackbar
                   // ScaffoldMessenger.of(context).showSnackBar(
@@ -185,7 +192,7 @@ class _enterDetailsFormState extends State<enterDetailsForm> {
                   // );
               //  }
               },
-              child: Text(
+              child: const Text(
                 "Continue",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
               ),
@@ -208,19 +215,21 @@ class _enterDetailsFormState extends State<enterDetailsForm> {
   }
 }
 
-Widget textFieldForForm(String titleText, String hintText, String errorMessageText){
+Widget textFieldForForm(String titleText, String hintText, String errorMessageText, TextEditingController controller, bool editable){
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(titleText),
-      SizedBox(
+      const SizedBox(
         height: 10,
       ),
       TextFormField(
+        controller: controller,
+        enabled: editable  ,
         decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey),
-            border: OutlineInputBorder(
+            hintStyle: const TextStyle(color: Colors.grey),
+            border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)))),
         // keyboardType: TextInputType.emailAddress,
         validator: (value) {
@@ -239,7 +248,7 @@ Widget textFieldForForm(String titleText, String hintText, String errorMessageTe
 
 Widget genderDropDown(){
   return Container(
-    constraints: BoxConstraints(minWidth: double.infinity),
+    constraints: const BoxConstraints(minWidth: double.infinity),
     decoration: BoxDecoration(
         border: Border.all(
           width: 1,

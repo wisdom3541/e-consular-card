@@ -1,9 +1,14 @@
+import 'package:e_document_request/providers/verify_nin_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
 import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:e_document_request/screens/nextOfKinInformation.dart';
 import 'package:e_document_request/screens/otpScreen.dart';
+import 'package:e_document_request/screens/widgets/date_time_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+ bool editable = true;
 
 class Enteryourdetails2 extends StatelessWidget {
   const Enteryourdetails2({super.key});
@@ -15,12 +20,12 @@ class Enteryourdetails2 extends StatelessWidget {
         child: Column(
           children: [
             appBar(),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             backIcon(),
             //SizedBox(height: 30,),
             Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
+              padding: const EdgeInsets.all(20),
+              child: const Column(
                 children: [
                   Text(
                     "Almost there, Complete your profile",
@@ -61,6 +66,8 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
 
   @override
   Widget build(BuildContext context) {
+
+    var vnp = Provider.of<VerifyNinProvider>(context,);
     return Container(
       child: Form(
         key: _formkey,
@@ -68,50 +75,46 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
           //crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             textFieldForForm(
-                "Address of Residence", "Enter your address", "Required"),
-            SizedBox(
+                "Address of Residence", "Enter your address", "Required",vnp.residenceAddressLine1Controller,editable),
+            const SizedBox(
               height: 20,
             ),
-            textFieldForForm("LGA", "Enter your LGA", "Required"),
-            SizedBox(
+            textFieldForForm("LGA", "Enter your LGA", "Required",vnp.residenceLgaController,editable),
+            const SizedBox(
               height: 20,
             ),
             textFieldForForm("State of Residence",
-                "Enter your state of residence", "Required"),
-            SizedBox(
+                "Enter your state of residence", "Required",vnp.residenceStateController,editable),
+            const SizedBox(
               height: 20,
             ),
-            Divider(
+            const Divider(
               thickness: 1,
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
-            InputDatePickerFormField(
-                fieldLabelText: "Date of Birth",
-                fieldHintText: "Enter your D.O.B",
-                firstDate: DateTime(1924, 01, 01),
-                lastDate: DateTime(2009, 01, 01)),
-            SizedBox(
+            const DatePickerExample(),
+            const SizedBox(
               height: 20,
             ),
             textFieldForForm(
-                "State of Origin", "Enter your state of origin", "Required"),
-            SizedBox(
+                "State of Origin", "Enter your state of origin", "Required",vnp.selfOriginStateController,editable),
+            const SizedBox(
               height: 20,
             ),
             textFieldForForm("Country of Residence",
-                "Enter your country of residence", "Required"),
-            SizedBox(
+                "Enter your country of residence", "Required",vnp.birthcountryController,editable),
+            const SizedBox(
               height: 20,
             ),
             textFieldForForm(
-                "Means of Identification", "Select ID type", "Required"),
-            SizedBox(
+                "Means of Identification", "Select ID type", "Required",vnp.meansOfIDController,editable),
+            const SizedBox(
               height: 20,
             ),
-            textFieldForForm("Enter ID Number", "0123456789", "Required"),
-            SizedBox(
+            textFieldForForm("Enter ID Number", "0123456789", "Required", vnp.ninController,editable),
+            const SizedBox(
               height: 30,
             ),
             Container(
@@ -130,7 +133,7 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => NextOfKinInformation()));
+                            builder: (context) => const NextOfKinInformation()));
 
                     // You can display a success message using a Snackbar
                     // ScaffoldMessenger.of(context).showSnackBar(
@@ -138,11 +141,6 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
                     // );
                 //  }
                 },
-                child: Text(
-                  "Continue",
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w700),
-                ),
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
@@ -153,6 +151,11 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
                     foregroundColor: MaterialStateProperty.all<Color>(
                       Colors.white,
                     )),
+                child: const Text(
+                  "Continue",
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w700),
+                ),
               ),
             ),
           ],

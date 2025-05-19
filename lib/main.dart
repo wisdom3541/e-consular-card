@@ -1,10 +1,14 @@
+import 'package:e_document_request/providers/app_provider.dart';
+import 'package:e_document_request/providers/create_acccount_with_nin_provider.dart';
+import 'package:e_document_request/providers/login_screen_provider.dart';
+import 'package:e_document_request/providers/otp_provider.dart';
+import 'package:e_document_request/providers/verify_nin_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
 import 'package:e_document_request/screens/createAccountWithNIN.dart';
 import 'package:e_document_request/screens/documentScreen.dart';
 import 'package:e_document_request/screens/emptyRequestScreen.dart';
+import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:e_document_request/screens/homePage.dart';
-import 'package:e_document_request/screens/idCardRequestScreen.dart';
-import 'package:e_document_request/screens/loginScreen.dart';
 import 'package:e_document_request/screens/otpScreen.dart';
 import 'package:e_document_request/screens/payWithCard.dart';
 import 'package:flutter/material.dart';
@@ -23,15 +27,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => AppProvider()),
         ChangeNotifierProvider(
-            create: (context) => CreateAccountWithNINAppState()),
-        ChangeNotifierProvider(create: (context) => OtpScreenState()),
+            create: (context) => CreateAcccountWithNinProvider()),
+       
         ChangeNotifierProvider(create: (context) => PayWithCardState()),
         ChangeNotifierProvider(create: (context) => HomePageState()),
-        ChangeNotifierProvider(create: (context)=> DocumentScreenState())
+        ChangeNotifierProvider(create: (context)=> DocumentScreenState()),
+        ChangeNotifierProvider(create: (context)=> VerifyNinProvider()),
+        ChangeNotifierProvider(create: (context)=> LoginScreenProvider()),
+         ChangeNotifierProvider(create: (context) => OtpProvider()),
+
       ],
       child: ScreenUtilInit(
-        designSize: const Size(470, 830),
+        designSize: const Size(375, 812),
         builder: (context, child) {
           return MaterialApp(
             title: 'E-DocRequest',
@@ -39,7 +48,13 @@ class MyApp extends StatelessWidget {
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
               useMaterial3: true,
             ),
-            home: const mainHolder(),
+            debugShowCheckedModeBanner: false,
+            home: const OtpScreen(
+                              otpType: "Enter OTP sent to your mail",
+                              otpMessage:
+                                  "We sent an OTP to your email to verify your account",
+                              nextPage: Enteryourdetails(),
+                            ),
           );
         },
       ),

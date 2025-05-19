@@ -1,0 +1,2 @@
+C:/Users/ezeok/StudioProjects/e_document_Request/android/app/.cxx/Debug/382t1i30/x86/CMakeFiles/edit_cache.dir
+C:/Users/ezeok/StudioProjects/e_document_Request/android/app/.cxx/Debug/382t1i30/x86/CMakeFiles/rebuild_cache.dir

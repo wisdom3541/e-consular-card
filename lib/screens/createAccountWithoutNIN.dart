@@ -1,9 +1,11 @@
+import 'package:e_document_request/providers/create_acccount_with_nin_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
 import 'package:e_document_request/screens/createAccountWithNIN.dart';
 import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:e_document_request/screens/otpScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CreateAccountWithoutNIN extends StatelessWidget {
   const CreateAccountWithoutNIN({super.key});
@@ -16,20 +18,20 @@ class CreateAccountWithoutNIN extends StatelessWidget {
           children: [
             appBar(),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 50,
                   ),
-                  Text(
+                  const Text(
                     "Create an account",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
-                  Text(
+                  const Text(
                     "Get your account ready to get any confidential\ndocument you need to.",
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
                     textAlign: TextAlign.center,
@@ -42,7 +44,8 @@ class CreateAccountWithoutNIN extends StatelessWidget {
                     height: 20,
                   ),
                   Align(
-                      alignment: Alignment.center, child: alreadyHaveAccount(context)),
+                      alignment: Alignment.center,
+                      child: alreadyHaveAccount(context)),
                   SizedBox(
                     height: 20,
                   )
@@ -78,13 +81,13 @@ class _MyFormState extends State<MyForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          // Name field
-          Text("Email*"),
-          SizedBox(
+          // Email field
+          const Text("Email*"),
+          const SizedBox(
             height: 10,
           ),
           TextFormField(
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
                 hintText: "Email",
                 hintStyle: TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
@@ -101,7 +104,32 @@ class _MyFormState extends State<MyForm> {
               _name = value ?? '';
             },
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
+
+          // Name field
+          const Text("National Identity Number(NIN)*"),
+          const SizedBox(
+            height: 10,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(
+                hintText: "Enter your NIN",
+                hintStyle: TextStyle(color: Colors.grey),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)))),
+            validator: (value) {
+              if (value == null ||
+                  !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$')
+                      .hasMatch(value)) {
+                return 'Password must include:\n- 1 uppercase letter\n- 1 number\n- 1 special character\n- 8+ characters';
+              }
+              return null;
+            },
+            onSaved: (value) {
+              _name = value ?? '';
+            },
+          ),
+          const SizedBox(height: 16.0),
 
           // Email field
           Text("Password*"),
@@ -125,7 +153,7 @@ class _MyFormState extends State<MyForm> {
               _email = value ?? '';
             },
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Text("Must be at least 8 characters."),
@@ -168,27 +196,28 @@ class _MyFormState extends State<MyForm> {
             child: ElevatedButton(
               onPressed: () {
                 // Validate returns true if the form is valid, or false otherwise.
-               // if (_formKey.currentState?.validate() == true) {
-                  // Save the form values
-                  _formKey.currentState?.save();
+                // if (_formKey.currentState?.validate() == true) {
+                // Save the form values
+                _formKey.currentState?.save();
 
-                  // Process the data (e.g., send to a server, display in UI)
-                  print('Name: $_name');
-                  print('Email: $_email');
+                // Process the data (e.g., send to a server, display in UI)
+                print('Name: $_name');
+                print('Email: $_email');
 
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => OtpScreen(
-                                otpType: "Enter OTP sent to your mail",
-                              otpMessage: "We sent an OTP to your email to verify your account",
-                            nextPage: Enteryourdetails(),
-                              )));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => OtpScreen(
+                              otpType: "Enter OTP sent to your mail",
+                              otpMessage:
+                                  "We sent an OTP to your email to verify your account",
+                              nextPage: Enteryourdetails(),
+                            )));
 
-                  // You can display a success message using a Snackbar
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text('Form successfully submitted!')),
-                  // );
+                // You can display a success message using a Snackbar
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(content: Text('Form successfully submitted!')),
+                // );
                 //}
               },
               child: Text(

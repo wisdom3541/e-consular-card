@@ -33,6 +33,8 @@ dependencies:
   provider: ^6.1.2
   pin_code_fields: ^8.0.1
   flutter_screenutil: ^5.9.3
+  dio: ^5.4.0
+  json_annotation: ^4.9.0
 
 
   # The following adds the Cupertino Icons fonts to your application.
@@ -42,6 +44,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.6
+  json_serializable: ^6.7.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

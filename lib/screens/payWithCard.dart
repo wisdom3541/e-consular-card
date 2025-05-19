@@ -38,7 +38,7 @@ class PayWithCard extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => PaymentSucessful()));
+                            builder: (context) => const PaymentSucessful()));
                   })
                 ],
               ),
@@ -69,7 +69,7 @@ Widget cardDetailsForm(BuildContext context) {
         CardInputTextFieldNotEditable(
             context, "Name on Card", "Card Holder Name", TextInputType.text),
         SizedBox(
-          height: 50,
+          height: 30.h,
         ),
       ],
     ),

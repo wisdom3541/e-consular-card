@@ -1,6 +1,5 @@
 import 'package:e_document_request/screens/changePassword.dart';
 import 'package:e_document_request/screens/createAccount.dart';
-import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:e_document_request/screens/otpScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -97,5 +96,35 @@ class _ForgoPasswordFormState extends State<ForgoPasswordForm> {
       ],
     ));
   }
+}
+
+Widget textFieldForForm(String titleText, String hintText, String errorMessageText){
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(titleText),
+      const SizedBox(
+        height: 10,
+      ),
+      TextFormField(
+       // controller: controller,
+        decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: const TextStyle(color: Colors.grey),
+            border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)))),
+        // keyboardType: TextInputType.emailAddress,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return errorMessageText;
+          }
+          return null;
+        },
+        onSaved: (value) {
+          //_email = value ?? '';
+        },
+      ),
+    ],
+  );
 }
 

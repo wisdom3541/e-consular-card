@@ -1,9 +1,13 @@
+import 'package:e_document_request/providers/verify_nin_provider.dart';
 import 'package:e_document_request/screens/accountCreatedSuccessfully.dart';
 import 'package:e_document_request/screens/createAccount.dart';
 import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:e_document_request/screens/otpScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+bool editable = true;
 
 class NextOfKinInformation extends StatelessWidget {
   const NextOfKinInformation({super.key});
@@ -15,13 +19,13 @@ class NextOfKinInformation extends StatelessWidget {
         child: Column(
           children: [
             appBar(),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             backIcon(),
             Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
+              padding: const EdgeInsets.all(20),
+              child: const Column(
                 children: [
 
                   SizedBox(height: 20,),
@@ -62,32 +66,34 @@ class _NextofkininformationFormState extends State<NextofkininformationForm> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
+
+    var vnp = Provider.of<VerifyNinProvider>(context);
     return  Container(
       child: Form(
         key: _formKey,
         child: Column(
           //crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            textFieldForForm("First Name*","Enter their first name", "Required"),
-            SizedBox(height: 20,),
-            textFieldForForm("Last Name*","Enter their last name", "Required"),
-            SizedBox(height: 20,),
-            textFieldForForm("Middle Name","Enter their middle name", "Optional"),
-            SizedBox(
+            textFieldForForm("First Name*","Enter their first name", "Required",vnp.nokFirstnameController,editable),
+            const SizedBox(height: 20,),
+            textFieldForForm("Last Name*","Enter their last name", "Required",vnp.nokSurnameController,editable),
+            const SizedBox(height: 20,),
+            textFieldForForm("Middle Name","Enter their middle name", "Optional",vnp.nokMiddlenameController,editable),
+            const SizedBox(
               height: 20,
             ),
-            textFieldForForm("Phone Number","080-xxx-xxxx", "Required"),
-            SizedBox(
+            textFieldForForm("Phone Number","080-xxx-xxxx", "Required",vnp.nokTelephonenoController,editable),
+            const SizedBox(
               height: 20,
             ),
-            textFieldForForm("Relationship","Mother", "Required"),
-            SizedBox(
+            textFieldForForm("Relationship","Mother", "Required",vnp.nokRelationshipController,editable),
+            const SizedBox(
               height: 20,
             ),
-            textFieldForForm("Email*","Enter their email", "Required"),
+            textFieldForForm("Email*","Enter their email", "Required",vnp.nokEmailController,editable),
 
 
-            SizedBox(height: 50,),
+            const SizedBox(height: 50,),
             Container(
               width: double.infinity,
               child: ElevatedButton(
@@ -112,7 +118,7 @@ class _NextofkininformationFormState extends State<NextofkininformationForm> {
                     // );
                 //  }
                 },
-                child: Text(
+                child: const Text(
                   "Continue",
                   style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
                 ),
