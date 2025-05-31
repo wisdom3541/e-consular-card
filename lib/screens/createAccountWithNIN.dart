@@ -106,7 +106,9 @@ class _CreateAccountWithNinForm extends State<CreateAccountWithNinForm> {
               style: TextStyle(fontSize: 14.sp)),
           SizedBox(height: 10.h),
           TextFormField(
+            controller: appState.ninController,
             decoration: InputDecoration(
+              enabled: false,
               hintText: "Enter your NIN",
               hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
               border: OutlineInputBorder(
@@ -143,7 +145,7 @@ class _CreateAccountWithNinForm extends State<CreateAccountWithNinForm> {
                   var registerUser = RegisterUser(
                       emailAddress: _email, nin: _nin, password: password);
 
-                  _showLoadingSpinner(context);
+                  showLoadingSpinner(context);
                   await appState.createAccountOnClick(context, registerUser);
 
                   Navigator.of(context).pop();
@@ -236,14 +238,14 @@ String? cofirmPasswordValidation(String? val) {
 }
 
 // Function to show a circular loader for 3 seconds
-void _showLoadingSpinner(BuildContext context) {
+void showLoadingSpinner(BuildContext context) {
   // Show the dialog
   showDialog(
     context: context,
     barrierDismissible: false, // Prevent dismissal by tapping outside
     builder: (BuildContext context) {
       return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
         content: const SizedBox(
           height: 100,
           child: Column(

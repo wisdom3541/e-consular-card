@@ -44,7 +44,7 @@ class CardDetails extends StatelessWidget {
                     SizedBox(height: 30 ,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [cardAmount(), cardExpires("2 Years")],
+                      children: [cardAmount("\$25000"), cardExpires("2 Years")],
                     ),
                     SizedBox(height: 80,),
                     cancelAndRequestButton(context)

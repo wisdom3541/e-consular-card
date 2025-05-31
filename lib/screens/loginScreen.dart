@@ -1,14 +1,17 @@
+import 'package:e_document_request/providers/loggedIn/cart_provider.dart';
+import 'package:e_document_request/providers/loggedIn/dashboard_provider.dart';
 import 'package:e_document_request/providers/login_screen_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
+import 'package:e_document_request/screens/createAccountWithNIN.dart';
 import 'package:e_document_request/screens/forgotPassword.dart';
 import 'package:e_document_request/screens/homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/login_screen_provider.dart';
-
 typedef ValidatorFunction = String? Function(String? input);
+String email = "";
+String password = "";
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -78,7 +81,12 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
 
-      var loginScreenProvider = Provider.of<LoginScreenProvider>(context);
+      var loginScreenProvider = Provider.of<LoginScreenProvider>(context, listen: false);
+      var dashboardProvider = Provider.of<DashboardProvider>(context,listen: false);
+      var cartProvider = Provider.of<CartProvider>(context,listen: false);
+ 
+      // var loginProvider = Provider.of<LoginScreenProvider>(context,listen: false);
+ 
 
     return Container(
       child: Form(
@@ -113,38 +121,31 @@ class _LoginFormState extends State<LoginForm> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   // Validate returns true if the form is valid, or false otherwise.
-                  //   if (_formKey.currentState?.validate() == true) {
+                     if (_formKey.currentState?.validate() == true) {
                   // Save the form values
                   _formKey.currentState?.save();
-
-                  // Process the data (e.g., send to a server, display in UI)
-                  // print('Name: $_name');
-                  // print('Email: $_email');
+                  showLoadingSpinner(context);
+                  await loginScreenProvider.login(email,password);
+                  final userToken = loginScreenProvider.userLoggedInToken;
+                  await dashboardProvider.getAllDashboardData(userToken);
+                  await cartProvider.updateCartResponse(userToken);
+                  Navigator.pop(context);
 
                   // Navigator.push(
                   //     context,
                   //     MaterialPageRoute(
                   //         builder: (context) => Enteryourdetails2()));
 
-
-
-                  // You can display a success message using a Snackbar
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text('Logged IN successfully!')),
-                  // );
+                //  You can display a success message using a Snackbar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Logged IN successfully!')),
+                  );
 
                   Navigator.push(context, MaterialPageRoute(builder: (context)=> HomePage()));
-                  //  }
+                   }
                 },
-                child: Text(
-                  "Log In",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 20),
-                ),
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
@@ -155,6 +156,13 @@ class _LoginFormState extends State<LoginForm> {
                     foregroundColor: MaterialStateProperty.all<Color>(
                       Colors.white,
                     )),
+                child: const Text(
+                  "Log In",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20),
+                ),
               ),
             ),
           ],
@@ -203,15 +211,15 @@ Widget emailTextFieldForForm(String titleText, String hintText, String errorMess
                 borderRadius: BorderRadius.all(Radius.circular(10)))),
         // keyboardType: TextInputType.emailAddress,
         validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your email';
-              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Please enter a valid email';
-              }
-              return null;
+              // if (value == null || value.isEmpty) {
+              //   return 'Please enter your email';
+              // } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+              //   return 'Please enter a valid email';
+              // }
+              // return null;
             },
         onSaved: (value) {
-          //_email = value ?? '';
+          email = value ?? '';
         },
       ),
     ],
@@ -253,14 +261,14 @@ Widget passwordTextField(String title, String hint,
           ),
         ),
         validator: (value){
-          if (value == null ||
-      !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$')
-          .hasMatch(value)) {
-    return 'Password must include:\n- 1 uppercase letter\n- 1 number\n- 1 special character\n- 8+ characters';
-  }
+  //         if (value == null ||
+  //     !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$')
+  //         .hasMatch(value)) {
+  //   return 'Password must include:\n- 1 uppercase letter\n- 1 number\n- 1 special character\n- 8+ characters';
+  // }
   return null;
         },
-        //  onSaved: (value) => controller.text = value ?? '',
+          onSaved: (value) => password = value ?? '',
       ),
     ],
   );

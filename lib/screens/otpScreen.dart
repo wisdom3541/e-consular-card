@@ -1,6 +1,6 @@
 import 'package:e_document_request/providers/create_acccount_with_nin_provider.dart';
 import 'package:e_document_request/providers/otp_provider.dart';
-import 'package:e_document_request/providers/verify_nin_provider.dart';
+import 'package:e_document_request/providers/update_nin_data_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
 import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ class OtpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var op = Provider.of<OtpProvider>(context, listen: false);
     var cawnp = Provider.of<CreateAcccountWithNinProvider>(context);
-    var vnp = Provider.of<VerifyNinProvider>(context, listen: false);
+    var vnp = Provider.of<UpdateNinDataProvider>(context, listen: false);
     final _formKey = GlobalKey<FormState>();
     var otp = "";
 
@@ -33,12 +33,12 @@ class OtpScreen extends StatelessWidget {
         // You can now use the `otp` or `_otpController.text`
         print("Validated OTP: $otp");
         print("getting data");
-        await vnp.getCitizenData(context);
+         vnp.populateRetrievedData();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Enteryourdetails()),
         );
-        op.getUserRegisterationdetails(cawnp.userData.hashedId);
+        //op.getUserRegisterationdetails(cawnp.userData.hashedId);
         // Call appState.getOtp(otp) or navigate next
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,9 +83,9 @@ class OtpScreen extends StatelessWidget {
                       print(value);
                     },
                     validator: (value) {
-                      // if (value == null || value.length < 6 || value != op.otp.toString() ) {
-                      //   return 'Enter the 6-digit OTP';
-                      // }
+                      if (value == null || value.length < 6 || value != op.otp.toString() ) {
+                        return 'Enter the 6-digit OTP';
+                      }
                       return null;
                     },
                     onSaved: (value) => otp = value ?? '',

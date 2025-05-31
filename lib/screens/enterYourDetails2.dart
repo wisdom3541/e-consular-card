@@ -1,4 +1,4 @@
-import 'package:e_document_request/providers/verify_nin_provider.dart';
+import 'package:e_document_request/providers/update_nin_data_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
 import 'package:e_document_request/screens/enterYourDetails.dart';
 import 'package:e_document_request/screens/nextOfKinInformation.dart';
@@ -67,7 +67,7 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
   @override
   Widget build(BuildContext context) {
 
-    var vnp = Provider.of<VerifyNinProvider>(context,);
+    var undp = Provider.of<UpdateNinDataProvider>(context,);
     return Container(
       child: Form(
         key: _formkey,
@@ -75,16 +75,16 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
           //crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             textFieldForForm(
-                "Address of Residence", "Enter your address", "Required",vnp.residenceAddressLine1Controller,editable),
+                "Address of Residence", "Enter your address", "Required",undp.residenceAddressLine1Controller,editable),
             const SizedBox(
               height: 20,
             ),
-            textFieldForForm("LGA", "Enter your LGA", "Required",vnp.residenceLgaController,editable),
+            textFieldForForm("Phone Number", "Enter your Phone Number", "Required",undp.telephonenoController,editable),
             const SizedBox(
               height: 20,
             ),
             textFieldForForm("State of Residence",
-                "Enter your state of residence", "Required",vnp.residenceStateController,editable),
+                "Enter your state of residence", "Required",undp.residenceStateController,editable),
             const SizedBox(
               height: 20,
             ),
@@ -99,22 +99,18 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
               height: 20,
             ),
             textFieldForForm(
-                "State of Origin", "Enter your state of origin", "Required",vnp.selfOriginStateController,editable),
+                "Address in Nigeria", "Enter your address", "Required",undp.originAddressLine1Controller,editable),
             const SizedBox(
               height: 20,
             ),
             textFieldForForm("Country of Residence",
-                "Enter your country of residence", "Required",vnp.birthcountryController,editable),
+                "Enter your country of residence", "Required",undp.birthcountryController,editable),
             const SizedBox(
               height: 20,
             ),
             textFieldForForm(
-                "Means of Identification", "Select ID type", "Required",vnp.meansOfIDController,editable),
-            const SizedBox(
-              height: 20,
-            ),
-            textFieldForForm("Enter ID Number", "0123456789", "Required", vnp.ninController,editable),
-            const SizedBox(
+                "Means of Identification", "Select ID type", "Required",undp.meansOfIDController,false),
+             const SizedBox(
               height: 30,
             ),
             Container(
@@ -122,7 +118,7 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
               child: ElevatedButton(
                 onPressed: () {
                   // Validate returns true if the form is valid, or false otherwise.
-                //  if (_formkey.currentState?.validate() == true) {
+                 if (_formkey.currentState?.validate() == true) {
                     // Save the form values
                     _formkey.currentState?.save();
 
@@ -139,7 +135,7 @@ class _EnterDetailsForm2State extends State<EnterDetailsForm2> {
                     // ScaffoldMessenger.of(context).showSnackBar(
                     //   SnackBar(content: Text('Form successfully submitted!')),
                     // );
-                //  }
+                 }
                 },
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(

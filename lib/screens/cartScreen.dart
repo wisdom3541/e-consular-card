@@ -1,71 +1,74 @@
+import 'package:e_document_request/providers/loggedIn/cart_provider.dart';
 import 'package:e_document_request/screens/cartPayWithCard.dart';
+import 'package:e_document_request/screens/widgets/no_item_in_cart_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var cartProvider = Provider.of<CartProvider>(context);
+    var cartItems = cartProvider.cartItems;
+
     return SafeArea(
+      child: SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Container(
-          padding: EdgeInsets.symmetric(horizontal: 28.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 30,
-              ),
-              onScreenBackButton(),
-              SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: 50,
-                    ),
-                    const Text(
-                      "Items in Cart",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Text(
-                      "Here are the list of documents in your cart. Proceed to Pay",
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    itemInCart("Activation License", "12,500"),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    itemInCart("Online Acknowledged Slip", "12,500"),
-                    const SizedBox(
-                      height: 50,
-                    ),
-                    cartSummary(),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    cartTotal("25,075"),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    proceedButton(context)
-                  ],
+        body: SingleChildScrollView( // Wrap the full body in scroll view
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 28.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 30),
+                onScreenBackButton(),
+                const SizedBox(height: 50),
+                const Text(
+                  "Items in Cart",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
-              )
-            ],
+                const SizedBox(height: 10),
+                const Text(
+                  "Here are the list of documents in your cart. Proceed to Pay",
+                  style: TextStyle(fontSize: 15),
+                ),
+                const SizedBox(height: 20),
+                
+                // Cart Items Section
+                cartItems.isEmpty
+                    ? const NoItemInCart()
+                    : ListView.builder(
+                        itemCount: cartItems.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final item = cartItems[index];
+                          return Column(
+                            children: [
+                              itemInCart(item.documentName, item.documentAmount),
+                              const SizedBox(height: 20),
+                            ],
+                          );
+                        },
+                      ),
+
+                const SizedBox(height: 50),
+                cartSummary(),
+                const SizedBox(height: 20),
+                cartTotal("25,075"),
+                const SizedBox(height: 20),
+                proceedButton(context),
+                const SizedBox(height: 30), // bottom spacing
+              ],
+            ),
           ),
         ),
       ),
+    )
     );
   }
 }

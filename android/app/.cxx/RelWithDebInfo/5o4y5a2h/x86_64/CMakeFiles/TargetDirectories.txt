@@ -1,0 +1,2 @@
+C:/Users/ezeok/StudioProjects/e_document_Request/android/app/.cxx/RelWithDebInfo/5o4y5a2h/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/ezeok/StudioProjects/e_document_Request/android/app/.cxx/RelWithDebInfo/5o4y5a2h/x86_64/CMakeFiles/rebuild_cache.dir

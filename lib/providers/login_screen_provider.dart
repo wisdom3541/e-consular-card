@@ -6,7 +6,9 @@ class LoginScreenProvider extends ChangeNotifier{
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-@override
+  late String userLoggedInToken;
+
+  @override
   void dispose() {
     // TODO: implement dispose
    // emailController.dispose();
@@ -14,10 +16,16 @@ class LoginScreenProvider extends ChangeNotifier{
     super.dispose();
   }
 
-  void login() async{
-    var response = UserLoginApi().userLogin(emailController.text, passwordController.text);
-    print("REPONSE::");
-    print(response.toString());
+    void updateUserLoggedInToken(String token){
+      userLoggedInToken = token;
+      notifyListeners();
+  }
+
+  Future<void> login(String email, String password) async{
+    var response = await UserLoginApi().userLogin(email, password);
+    updateUserLoggedInToken(response!.token);
+    
+    print("REPONSE: $userLoggedInToken");
     notifyListeners();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:e_document_request/providers/loggedIn/dashboard_provider.dart';
 import 'package:e_document_request/screens/cardDetails.dart';
 import 'package:e_document_request/screens/documentScreen.dart';
 import 'package:e_document_request/screens/notificationScreen.dart';
@@ -38,7 +39,7 @@ class HomePage extends StatelessWidget {
         body: page,
         bottomNavigationBar: NavigationBar(
           elevation: 5,
-          indicatorColor: Color(0xffE9F5EF),
+          indicatorColor: const Color(0xffE9F5EF),
           destinations: bottomNavDestination,
           selectedIndex: appState.selectedIndex,
           onDestinationSelected: (index) {
@@ -88,13 +89,14 @@ class HomePageState extends ChangeNotifier {
 
 Widget HomePageContent(BuildContext context, Widget icon) {
   var appState = Provider.of<HomePageState>(context);
+  var dp = Provider.of<DashboardProvider>(context);
   var selectedFilter = appState.selectedFilter;
 
-  Widget filterContent = AvailableCard(context);
+  Widget filterContent = EmptyCard(context);
 
   switch (selectedFilter) {
     case 0:
-      filterContent = AvailableCard(context);
+      filterContent = EmptyCard(context);
       break;
 
     case 1:
@@ -110,21 +112,21 @@ Widget HomePageContent(BuildContext context, Widget icon) {
     child: Column(children: [
       homePageAppBar(icon),
       Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
-              const Wrap(children: [
-                Text(
+               Wrap(children: [
+                const Text(
                   "Welcome, ",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  "John",
-                  style: TextStyle(
+                  dp.citizenData.firstName,
+                  style: const TextStyle(
                       color: Color(0xff24985B),
                       fontSize: 20,
                       fontWeight: FontWeight.w600),
@@ -138,19 +140,19 @@ Widget HomePageContent(BuildContext context, Widget icon) {
                 height: 20,
               ),
               filterWidgetBar(context),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               searchBar(),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Align(alignment: Alignment.center, child: filterButton()),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               filterContent,
-              SizedBox(
+              const SizedBox(
                 height: 20,
               )
             ],
@@ -182,8 +184,8 @@ var bottomNavDestination = const [
 Widget requestIdCard() {
   return Container(
     //height: 37,'
-    padding: EdgeInsets.all(10),
-    color: Color(0xffE9F5EF),
+    padding: const EdgeInsets.all(10),
+    color: const Color(0xffE9F5EF),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -232,14 +234,14 @@ Widget EmptyCard(BuildContext context) {
             // width: 100,
           ),
         ),
-        Text(
+        const Text(
           "You currently don’t have any pending or processed documents. You can request for one now",
           style: TextStyle(
             fontWeight: FontWeight.w600,
           ),
           textAlign: TextAlign.center,
         ),
-        SizedBox(
+        const SizedBox(
           height: 30,
         ),
         Align(
@@ -249,7 +251,7 @@ Widget EmptyCard(BuildContext context) {
             height: 36.h,
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
-                  backgroundColor: Color(0xFF24985B),
+                  backgroundColor: const Color(0xFF24985B),
                   shape: RoundedRectangleBorder(
                       side: BorderSide.none,
                       borderRadius: BorderRadius.circular(5.r))),
@@ -257,7 +259,7 @@ Widget EmptyCard(BuildContext context) {
                 // Navigator.push(context, MaterialPageRoute(builder: (context)=>HomePage()));
                 appState.updateSelectedIndex(0);
               },
-              child: Text(
+              child: const Text(
                 "Request New Document",
                 style:
                     TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
@@ -270,9 +272,9 @@ Widget EmptyCard(BuildContext context) {
   );
 }
 
-Color grey = Color(0xffF0F2F5);
-Color greyInner = Color(0xffE4E7EC);
-Color greyBorder = Color(0xffD7DBE2);
+Color grey = const Color(0xffF0F2F5);
+Color greyInner = const Color(0xffE4E7EC);
+Color greyBorder = const Color(0xffD7DBE2);
 
 Widget filterWidgetBar(BuildContext context) {
   var appState = Provider.of<HomePageState>(context);
@@ -285,7 +287,7 @@ Widget filterWidgetBar(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         filterTypes(
-            "All Requests", "1", Color(f1[0]), Color(f1[1]), Color(f1[2]), () {
+            "All Requests", "0", Color(f1[0]), Color(f1[1]), Color(f1[2]), () {
           appState.updateActiveFilter("filter1");
           appState.updateSelectedFilter(0);
         }),
@@ -319,7 +321,7 @@ Widget filterTypes(String name, String number, Color background,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(name),
-          SizedBox(
+          const SizedBox(
             width: 5,
           ),
           Container(
@@ -351,7 +353,7 @@ Widget searchBar() {
           decoration: BoxDecoration(
               border: Border.all(width: 1, color: greyBorder),
               borderRadius: BorderRadius.circular(10)),
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           width: 350,
           child: const TextField(
             decoration: InputDecoration(
@@ -387,20 +389,20 @@ Widget filterButton() {
   );
 }
 
-Widget cardAmount() {
-  return const Column(
+Widget cardAmount(String amount) {
+  return  Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(
+      const Text(
         "Total amount",
         style: TextStyle(color: Color(0xffA8A8A8)),
       ),
-      SizedBox(
+      const SizedBox(
         height: 5,
       ),
       Text(
-        "\$25,000",
-        style: TextStyle(
+        "\$$amount",
+        style: const TextStyle(
             fontWeight: FontWeight.w700,
             color: Color(0xff24985B),
             fontSize: 20),
@@ -413,16 +415,16 @@ Widget cardExpires(String expiryYear) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(
+      const Text(
         "Expires After ",
         style: TextStyle(color: Color(0xffA8A8A8)),
       ),
-      SizedBox(
+      const SizedBox(
         height: 5,
       ),
       Text(
-        expiryYear,
-        style: TextStyle(
+        "$expiryYear Months",
+        style: const TextStyle(
             fontWeight: FontWeight.w700,
             color: Color(0xff1470F9),
             fontSize: 20),
@@ -435,30 +437,30 @@ Widget requestedCardDesign(String cardName, BuildContext context) {
   return Card(
     elevation: 10,
     child: Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             cardName,
-            style: TextStyle(
+            style: const TextStyle(
                 fontSize: 15, color: Colors.black, fontWeight: FontWeight.w600),
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
-          Text(
+          const Text(
             "Nike operates retail stores worldwide,including Nike-branded retail outlets,factory stores, and concept stores....",
             style: TextStyle(color: Colors.grey),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [status("pending"), requestedDate()],
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
 
@@ -467,15 +469,15 @@ Widget requestedCardDesign(String cardName, BuildContext context) {
             child: GestureDetector(
               onTap: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => CardDetails()));
+                    MaterialPageRoute(builder: (context) => const CardDetails()));
               },
-              child: Text(
+              child: const Text(
                 "Details",
                 style: TextStyle(color: Color(0xff24985B)),
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           )
           // cardDetailsAndRequest(context, buttonText)
@@ -535,7 +537,7 @@ Widget requestedDate() {
 
 Widget homePageAppBar(Widget appBarIcon) {
   return Container(
-    padding: EdgeInsets.all(15.0),
+    padding: const EdgeInsets.all(15.0),
     color: const Color(0xff1a6c41),
     // color: const Color.fro(26, 108, 65, 100),
     //Color.fromRGBO(20, 84, 50, 100),
@@ -560,9 +562,9 @@ Widget notificationIcon(
   return GestureDetector(
     onTap: () {
       Navigator.push(context,
-          MaterialPageRoute(builder: (context) => NotificationScreen()));
+          MaterialPageRoute(builder: (context) => const NotificationScreen()));
     },
-    child: Icon(
+    child: const Icon(
       Icons.notifications_none_rounded,
       color: Colors.white,
       size: 30,

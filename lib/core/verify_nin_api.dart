@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:e_document_request/models/citizen_data.dart';
 import 'package:e_document_request/providers/app_provider.dart';
-import 'package:e_document_request/providers/verify_nin_provider.dart';
+import 'package:e_document_request/providers/update_nin_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,8 +11,8 @@ class VerifyNinApi {
 
 
 
-  Future<String?> verifyNinApi(BuildContext context) async {
-    var vnp = Provider.of<VerifyNinProvider>(context,listen: false);
+  Future<String?> verifyNinApi(BuildContext context, String nin) async {
+    var vnp = Provider.of<UpdateNinDataProvider>(context,listen: false);
     var appProvider = Provider.of<AppProvider>(context,listen: false);
     try {
       var headers = {
@@ -20,10 +20,12 @@ class VerifyNinApi {
         'Authorization':
             appProvider.token
       };
+      var url = 'https://api.e-docrequest.com/api/verify-nin/$nin';
+      print(url);
       var data = '''''';
       var dio = Dio();
-      var response = await dio.request(
-        'https://api.e-docrequest.com/api/verify-nin/90123456789',
+      var response = await dio.request(url
+        ,
         options: Options(
           method: 'GET',
           headers: headers,
@@ -32,10 +34,14 @@ class VerifyNinApi {
       );
 
       if (response.statusCode == 200) {
+        print("API Raw Data: ${response.data["data"]}");
+
         final citizenData = CitizenData.fromJson(response.data["data"]);
-        vnp.updateCitizenData(citizenData);
-        vnp.populateRetrievedData();
-        print(json.encode(response.data));
+       vnp.updateCitizenData(citizenData);
+        print("update??");
+        print(citizenData.firstname);
+    //    vnp.populateRetrievedData();
+        //print(json.encode(response.data).toString());
         return citizenData.firstname.toString();
       }
     } on DioException catch (e) {
@@ -49,9 +55,10 @@ class VerifyNinApi {
         print('Connection error: ${e.message}');
         return "Connection failed: ${e.message}";
       }
-    } catch (e) {
+    } catch (e, st) {
       // Handle unexpected errors
       print('Unexpected error: $e');
+      print("StackTrace: $st");
       return "Unexpected error occurred";
     }
     return null;

@@ -1,8 +1,15 @@
-import 'package:e_document_request/providers/verify_nin_provider.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
+import 'package:e_document_request/providers/update_nin_data_provider.dart';
 import 'package:e_document_request/screens/createAccount.dart';
 import 'package:e_document_request/screens/enterYourDetails2.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 class Enteryourdetails extends StatelessWidget {
@@ -20,56 +27,69 @@ class Enteryourdetails extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(
-                    height: 50,
+                  SizedBox(
+                    height: 50.h,
                   ),
-                  const Align(
+                  Align(
                     alignment: Alignment.center,
                     child: Column(children: [
                       Text("Enter Your Details",
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w700)),
+                              fontSize: 20.sp, fontWeight: FontWeight.w700)),
                       SizedBox(
-                        height: 5,
+                        height: 5.h,
                       ),
                       Text(
                         "To get started, let’s create an account",
                         style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.w400,
                             color: Colors.grey),
                       ),
                     ]),
                   ),
-                  const SizedBox(
-                    height: 30,
+                  SizedBox(
+                    height: 30.h,
                   ),
                   const Text("Passport Picture*"),
                   const Icon(
                     Icons.person_outline,
                     size: 80,
-                   fill: 1,
+                    fill: 1,
                     color: Colors.black,
                   ),
+                  SizedBox(
+                    height: 30.h,
+                  ),
+                  OutlinedButton(
+                    onPressed: () async {
+                     var img64 = await pickCompressAndConvertToBase64();
+                     print("immggg ${img64!.base64}");
+                        },
+                    style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5))),
+                    child: takePhoto(),
+                  ),
+                  const SizedBox(height: 5),
+                  uplaodPicture(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Divider(
+                    thickness: 2,
+                  ),
+                  const SizedBox(height: 20),
+                  const EnterDetailsForm(),
                   const SizedBox(
                     height: 30,
                   ),
-                  OutlinedButton(onPressed: () {}, style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5)
-                    )
-                  ), child: takePhoto(),),
-                  const SizedBox(height: 5),
-                  uplaodPicture(),
-                  const SizedBox(height: 10,),
-                  const Divider(thickness: 2,),
-                  const SizedBox(height: 20),
-                  const enterDetailsForm(),
-                  const SizedBox(height: 30,),
                   Align(
                       alignment: Alignment.center,
                       child: alreadyHaveAccount(context)),
-                  const SizedBox(height: 50,)
+                  const SizedBox(
+                    height: 50,
+                  )
                 ],
               ),
             )
@@ -104,118 +124,127 @@ Widget takePhoto() {
   );
 }
 
-Widget uplaodPicture(){
+Widget uplaodPicture() {
   return Container(
     width: 250,
     alignment: Alignment.centerLeft,
     decoration: BoxDecoration(
-        color: const Color.fromRGBO(223, 245, 239, 100)
-        ,
-      borderRadius: BorderRadius.circular(5)
-    ),
-
+        color: const Color.fromRGBO(223, 245, 239, 100),
+        borderRadius: BorderRadius.circular(5)),
     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
     child: const Text(
       "Upload Picture from Computer",
       style: TextStyle(
         fontWeight: FontWeight.w700,
-        color: Color.fromRGBO(36, 152, 91, 100,),
+        color: Color.fromRGBO(
+          36,
+          152,
+          91,
+          100,
+        ),
       ),
     ),
   );
 }
 
-class enterDetailsForm extends StatefulWidget {
-  const enterDetailsForm({super.key});
+class EnterDetailsForm extends StatefulWidget {
+  const EnterDetailsForm({super.key});
 
   @override
-  State<enterDetailsForm> createState() => _enterDetailsFormState();
+  State<EnterDetailsForm> createState() => _EnterDetailsFormState();
 }
-  bool editable = false;
 
-class _enterDetailsFormState extends State<enterDetailsForm> {
+bool editable = false;
 
+class _EnterDetailsFormState extends State<EnterDetailsForm> {
   final _formKey = GlobalKey<FormState>();
 
   // Variables to store form values
   String _name = '';
   String _email = '';
 
-
-
   @override
   Widget build(BuildContext context) {
-
-    var vnp = Provider.of<VerifyNinProvider>(context);
+    var vnp = Provider.of<UpdateNinDataProvider>(context);
     return Container(
       child: Form(
         key: _formKey,
         child: Column(
           //crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          textFieldForForm("First Name*","Enter your first name", "Required",vnp.firstnameController,editable),
-          const SizedBox(height: 20,),
-          textFieldForForm("Last Name*","Enter your last name", "Required",vnp.surnameController,editable),
-          const SizedBox(height: 20,),
-          textFieldForForm("Middle Name*","Enter your middle name", "Optional",vnp.middlenameController,editable),
-          const SizedBox(
-            height: 20,
-          ),
-          const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Gender")),
-          const SizedBox(height: 10,),
-          genderDropDown(),
-
-          const SizedBox(height: 50,),
-          Container(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                // Validate returns true if the form is valid, or false otherwise.
-             //   if (_formKey.currentState?.validate() == true) {
-                  // Save the form values
-                  _formKey.currentState?.save();
-
-                  // Process the data (e.g., send to a server, display in UI)
-                  print('Name: $_name');
-                  print('Email: $_email');
-
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const Enteryourdetails2()));
-
-                  // You can display a success message using a Snackbar
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text('Form successfully submitted!')),
-                  // );
-              //  }
-              },
-              child: const Text(
-                "Continue",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-              ),
-              style: ButtonStyle(
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8))),
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    Colors.green,
-                  ),
-                  foregroundColor: MaterialStateProperty.all<Color>(
-                    Colors.white,
-                  )),
+          children: [
+            textFieldForForm("First Name*", "Enter your first name", "Required",
+                vnp.firstnameController, editable),
+            const SizedBox(
+              height: 20,
             ),
-          ),
+            textFieldForForm("Last Name*", "Enter your last name", "Required",
+                vnp.surnameController, editable),
+            const SizedBox(
+              height: 20,
+            ),
+            textFieldForForm("Middle Name*", "Enter your middle name",
+                "Optional", vnp.middlenameController, editable),
+            const SizedBox(
+              height: 20,
+            ),
+            const Align(alignment: Alignment.centerLeft, child: Text("Gender")),
+            const SizedBox(
+              height: 10,
+            ),
+            genderDropDown(),
+            const SizedBox(
+              height: 50,
+            ),
+            Container(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Validate returns true if the form is valid, or false otherwise.
+                  if (_formKey.currentState?.validate() == true) {
+                    // Save the form values
+                    _formKey.currentState?.save();
 
-        ],
-      ),),
+                    // Process the data (e.g., send to a server, display in UI)
+                    print('Name: $_name');
+                    print('Email: $_email');
+
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Enteryourdetails2()));
+
+                    // You can display a success message using a Snackbar
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text('Form successfully submitted!')),
+                    // );
+                  }
+                },
+                style: ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8))),
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                      Colors.green,
+                    ),
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                      Colors.white,
+                    )),
+                child: const Text(
+                  "Continue",
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-Widget textFieldForForm(String titleText, String hintText, String errorMessageText, TextEditingController controller, bool editable){
+Widget textFieldForForm(String titleText, String hintText,
+    String errorMessageText, TextEditingController controller, bool editable) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -225,7 +254,7 @@ Widget textFieldForForm(String titleText, String hintText, String errorMessageTe
       ),
       TextFormField(
         controller: controller,
-        enabled: editable  ,
+        enabled: editable,
         decoration: InputDecoration(
             hintText: hintText,
             hintStyle: const TextStyle(color: Colors.grey),
@@ -246,7 +275,7 @@ Widget textFieldForForm(String titleText, String hintText, String errorMessageTe
   );
 }
 
-Widget genderDropDown(){
+Widget genderDropDown() {
   return Container(
     constraints: const BoxConstraints(minWidth: double.infinity),
     decoration: BoxDecoration(
@@ -280,9 +309,42 @@ Widget genderDropDown(){
         );
       }).toList(),
       onChanged: (String? newValue) {
-       // appState.updateCreateAccountDropdownOption(newValue!);
+        // appState.updateCreateAccountDropdownOption(newValue!);
       },
     ),
   );
 }
 
+Future<CompressedImageResult?> pickCompressAndConvertToBase64() async {
+ final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+  if (pickedFile == null) return null;
+
+  File imageFile = File(pickedFile.path);
+
+  // Compress the image
+  final dir = await getTemporaryDirectory();
+  final targetPath = join(dir.absolute.path, "temp.jpg");
+
+  XFile? compressedImage = await FlutterImageCompress.compressAndGetFile(
+    imageFile.absolute.path,
+    targetPath,
+    quality: 60,
+  );
+
+  if (compressedImage == null) return null;
+
+  // Convert to Base64
+  final bytes = await compressedImage.readAsBytes();
+  String base64Image = base64Encode(bytes);
+
+  return CompressedImageResult(file: compressedImage, base64: base64Image);
+}
+
+class CompressedImageResult {
+  final XFile file;
+  final String base64;
+
+  CompressedImageResult({required this.file, required this.base64});
+}

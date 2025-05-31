@@ -4,6 +4,7 @@ import 'package:e_document_request/core/api_service.dart';
 import 'package:e_document_request/screens/createAccountWithNIN.dart';
 import 'package:e_document_request/screens/createAccountWithoutNIN.dart';
 import 'package:e_document_request/screens/loginScreen.dart';
+import 'package:e_document_request/screens/verify_nin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,7 +30,7 @@ class CreateAccount extends StatelessWidget {
               Text(
                 "Welcome to iDocRequest.\nCreate an account",
                 style: TextStyle(
-                    fontSize: 28.sp,
+                    fontSize: 25.sp,
                     color: Colors.black,
                     fontFamily: "Roboto",
                     fontWeight: FontWeight.w700),
@@ -41,7 +42,7 @@ class CreateAccount extends StatelessWidget {
               Text(
                 "Get your account ready to get any confidential document you need to.",
                 style: TextStyle(
-                    fontSize: 19.sp, color: Colors.grey, fontFamily: "Roboto"),
+                    fontSize: 15.sp, color: Colors.grey, fontFamily: "Roboto"),
                 textAlign: TextAlign.center,
               ),
               SizedBox(
@@ -60,7 +61,7 @@ class CreateAccount extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const CreateAccountWithNIN()));
+                              builder: (context) => const VerifyNin()));
                     }),
                     SizedBox(height: 27.h),
                     accountCreationMethodButton(
@@ -107,7 +108,7 @@ Widget accountCreationMethodButton(String regMethodText, Color backgroundColor,
           Expanded(
             child: Text(
               regMethodText,
-              style: TextStyle(fontSize: 18.sp, color: textColor),
+              style: TextStyle(fontSize: 15.sp, color: textColor),
             ),
           ),
           IconButton(

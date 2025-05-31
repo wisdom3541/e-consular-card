@@ -1,0 +1,73 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'citizen.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+Citizen _$CitizenFromJson(Map<String, dynamic> json) => Citizen(
+      id: (json['id'] as num).toInt(),
+      citizenId: json['CitizenID'] as String,
+      hashedId: json['HashedID'] as String,
+      firstName: json['FirstName'] as String,
+      middleName: json['MiddleName'] as String?,
+      lastName: json['LastName'] as String,
+      birthDate: json['BirthDate'] as String,
+      gender: json['Gender'] as String,
+      phoneNumber: json['PhoneNumber'] as String,
+      emailAddress: json['EmailAddress'] as String,
+      addressOfResidence: json['AddressofResidence'] as String,
+      addressInNigeria: json['AddressInNigeria'] as String,
+      stateOfResidence: json['StateofResidence'] as String,
+      countryOfResidence: json['CountryofResidence'] as String,
+      stateOfOrigin: json['StateofOrigin'] as String,
+      lgaOfOrigin: json['LGAof Origin'] as String,
+      meansOfID: json['MeansofID'] as String,
+      idNumber: json['IDNumber'] as String,
+      nokFirstName: json['NOKFirstname'] as String?,
+      nokMiddleName: json['NOKMiddleName'] as String?,
+      nokLastName: json['NOKLastName'] as String?,
+      nokResidenceAddress: json['NOKResidenceAddress'] as String,
+      nokPhoneNumber: json['NOKPhoneNumber'] as String,
+      nokRelationship: json['NOKRelationship'] as String?,
+      nokEmail: json['NOKEmail'] as String,
+      dateRegistered: json['DateRegistered'] as String,
+      passwordUpdateDateTime: json['PasswordUpdateDateTime'] as String?,
+      adminProfileApproval: json['AdminProfileApproval'] as String,
+      profileCompleted: json['ProfileCompleted'] as String,
+      slipUpload: json['SlipUpload'] as String,
+    );
+
+Map<String, dynamic> _$CitizenToJson(Citizen instance) => <String, dynamic>{
+      'id': instance.id,
+      'CitizenID': instance.citizenId,
+      'HashedID': instance.hashedId,
+      'FirstName': instance.firstName,
+      'MiddleName': instance.middleName,
+      'LastName': instance.lastName,
+      'BirthDate': instance.birthDate,
+      'Gender': instance.gender,
+      'PhoneNumber': instance.phoneNumber,
+      'EmailAddress': instance.emailAddress,
+      'AddressofResidence': instance.addressOfResidence,
+      'AddressInNigeria': instance.addressInNigeria,
+      'StateofResidence': instance.stateOfResidence,
+      'CountryofResidence': instance.countryOfResidence,
+      'StateofOrigin': instance.stateOfOrigin,
+      'LGAof Origin': instance.lgaOfOrigin,
+      'MeansofID': instance.meansOfID,
+      'IDNumber': instance.idNumber,
+      'NOKFirstname': instance.nokFirstName,
+      'NOKMiddleName': instance.nokMiddleName,
+      'NOKLastName': instance.nokLastName,
+      'NOKResidenceAddress': instance.nokResidenceAddress,
+      'NOKPhoneNumber': instance.nokPhoneNumber,
+      'NOKRelationship': instance.nokRelationship,
+      'NOKEmail': instance.nokEmail,
+      'DateRegistered': instance.dateRegistered,
+      'PasswordUpdateDateTime': instance.passwordUpdateDateTime,
+      'AdminProfileApproval': instance.adminProfileApproval,
+      'ProfileCompleted': instance.profileCompleted,
+      'SlipUpload': instance.slipUpload,
+    };
