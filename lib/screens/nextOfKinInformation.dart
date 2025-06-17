@@ -113,13 +113,17 @@ var appProvider = Provider.of<AppProvider>(context);
                     // Save the form values
                     _formKey.currentState?.save();
                     showLoadingSpinner(context);
-                    await appProvider.updateWithNin(undp.createModelFromControllers(cawnp.userData!.hashedId));
+                    await appProvider.updateWithNin(undp.createModelFromControllers(cawnp.userData!.hashedId),undp.image!);
                     Navigator.of(context).pop();
 
-                    Navigator.pushReplacement(
+                    Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) =>   Accountcreatedsuccessfully()),
+                    MaterialPageRoute(builder: (context) =>  Accountcreatedsuccessfully()),
+                    (Route<dynamic> route) =>
+                        false, // Remove all previous routes
                   );
+
+                   
 
 
                     // Process the data (e.g., send to a server, display in UI)

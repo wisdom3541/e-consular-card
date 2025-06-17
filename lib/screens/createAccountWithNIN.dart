@@ -158,15 +158,17 @@ class _CreateAccountWithNinForm extends State<CreateAccountWithNinForm> {
                   //confirmPasswordController.dispose();
                   //passwordController.dispose();
 
-
-                  Navigator.pushReplacement(
+                  Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const OtpScreen(
+                    MaterialPageRoute(
+                        builder: (context) => const OtpScreen(
                               otpType: "Enter OTP sent to your mail",
                               otpMessage:
                                   "We sent an OTP to your email to verify your account",
                               nextPage: Enteryourdetails(),
                             )),
+                    (Route<dynamic> route) =>
+                        false, // Remove all previous routes
                   );
                 } else {
                   // If validation failed
@@ -196,8 +198,11 @@ class _CreateAccountWithNinForm extends State<CreateAccountWithNinForm> {
   }
 }
 
-Widget passwordField(String title, String hint,
-    TextEditingController controller, String? Function(String? value) function) {
+Widget passwordField(
+    String title,
+    String hint,
+    TextEditingController controller,
+    String? Function(String? value) function) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -245,7 +250,8 @@ void showLoadingSpinner(BuildContext context) {
     barrierDismissible: false, // Prevent dismissal by tapping outside
     builder: (BuildContext context) {
       return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
         content: const SizedBox(
           height: 100,
           child: Column(

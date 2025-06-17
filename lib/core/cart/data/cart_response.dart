@@ -5,21 +5,24 @@ part 'cart_response.g.dart';
 @JsonSerializable()
 class CartResponse {
   final bool success;
-  final String message;
+  final String? message;
 
   @JsonKey(name: 'orderID')
-  final String orderId;
+  final String? orderId;
 
-  final num totalAmount;
+  final num? totalAmount;
 
-  final List<CartItem> items;
+  final List<CartItem>? items;
+  final List<dynamic>? cart; // For the empty cart structure
 
   CartResponse({
     required this.success,
-    required this.message,
-    required this.orderId,
-    required this.totalAmount,
-    required this.items,
+     this.message,
+     this.orderId,
+     this.totalAmount,
+     this.items,
+     this.cart
+
   });
 
   factory CartResponse.fromJson(Map<String, dynamic> json) =>

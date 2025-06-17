@@ -58,7 +58,7 @@ class CartPayWithCard extends StatelessWidget {
                       ),
                       cardDetailsForm(context),
                       const SizedBox(height: 50,),
-                      proceedButton(context),
+                     // proceedButton(context),
                       const SizedBox(height: 30,)
                     ],
                   ),

@@ -147,6 +147,7 @@ Widget appBar() {
     padding: EdgeInsets.symmetric(horizontal: 15.w),
     height: 78.h,
     color: const Color(0xff1a6c41),
+    
     // color: const Color.fro(26, 108, 65, 100),
     //Color.fromRGBO(20, 84, 50, 100),
     alignment: Alignment.centerLeft,

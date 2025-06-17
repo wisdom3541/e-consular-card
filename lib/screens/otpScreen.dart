@@ -34,10 +34,12 @@ class OtpScreen extends StatelessWidget {
         print("Validated OTP: $otp");
         print("getting data");
          vnp.populateRetrievedData();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const Enteryourdetails()),
-        );
+        Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Enteryourdetails()),
+                    (Route<dynamic> route) =>
+                        false, // Remove all previous routes
+                  );
         //op.getUserRegisterationdetails(cawnp.userData.hashedId);
         // Call appState.getOtp(otp) or navigate next
       } else {

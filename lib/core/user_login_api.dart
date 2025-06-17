@@ -9,8 +9,8 @@ class UserLoginApi {
   Future<LoginResponse?> userLogin(String email, String password) async {
     try {
       var headers = {'Content-Type': 'application/json'};
-      var data =
-          json.encode({"email": "testdash@gmail.com", "password": "password"});
+      var data = json.encode({"email": email, "password": password});
+         // json.encode({"email": "testdash@gmail.com", "password": "password"});
       var dio = Dio();
       var response = await dio.request(
         'https://api.e-docrequest.com/api/login',
@@ -35,7 +35,7 @@ class UserLoginApi {
         // The server responded with a status other than 200
         print('Server error: ${e.response?.statusCode}');
         print('Message: ${e.response?.data}');
-        return e.response?.data['message'] ?? "Server error occurred";
+        return null;
       } else {
         // There was a connection error (e.g., no internet)
         print('Connection error: ${e.message}');

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:e_document_request/core/update_with_nin_api.dart';
 import 'package:e_document_request/core/verify_nin_api.dart';
 import 'package:e_document_request/models/auth_response.dart';
@@ -11,10 +13,15 @@ class AppProvider extends ChangeNotifier {
   late AuthResponse response;
   late UpdateWithNin data;
 
+  void reset() {
+    ninController.clear();
+    notifyListeners(); // if your UI depends on controller value
+  }
 
   @override
   void dispose() {
     // TODO: implement dispose
+    reset();
     ninController.dispose();
     super.dispose();
   }
@@ -25,9 +32,9 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateNin(String nin){
+  void updateNin(String nin) {
     print("updating NIN $nin");
-    this.nin= nin;
+    this.nin = nin;
     notifyListeners();
   }
 
@@ -40,19 +47,21 @@ class AppProvider extends ChangeNotifier {
 
   Future<void> verifyNin(BuildContext context) async {
     print("verifying NIN");
-    var reponse = await VerifyNinApi().verifyNinApi(context, ninController.text);
-    if(reponse == null){
+    var reponse =
+        await VerifyNinApi().verifyNinApi(context, ninController.text);
+    if (reponse == null) {
       print("null");
-    }else{
-    print(reponse);
+    } else {
+      print(reponse);
     }
     notifyListeners();
   }
 
-  Future<void> updateWithNin(UpdateWithNin updateWithNin) async {
-    var reponse = await UpdateWithNinApi().updateNinData(updateWithNin);
+  Future<void> updateWithNin(
+      UpdateWithNin updateWithNin, File passportFile) async {
+    var reponse =
+        await UpdateWithNinApi().updateNinData(updateWithNin, passportFile);
     print(reponse);
     notifyListeners();
-
   }
 }

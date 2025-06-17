@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,6 +19,7 @@ class Enteryourdetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var undp = Provider.of<UpdateNinDataProvider>(context);
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -52,30 +55,48 @@ class Enteryourdetails extends StatelessWidget {
                     height: 30.h,
                   ),
                   const Text("Passport Picture*"),
-                  const Icon(
-                    Icons.person_outline,
-                    size: 80,
-                    fill: 1,
-                    color: Colors.black,
-                  ),
                   SizedBox(
-                    height: 30.h,
+                    height: 10.h,
+                  ),
+                  undp.image != null
+                      ? Container(
+                          width: 150,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black54),
+                            shape: BoxShape.rectangle,
+                            image: DecorationImage(
+                              image: FileImage(undp.image!),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.person_outline,
+                          size: 150,
+                          fill: 1,
+                          color: Colors.black,
+                        ),
+                  SizedBox(
+                    height: 20.h,
                   ),
                   OutlinedButton(
                     onPressed: () async {
-                     var img64 = await pickCompressAndConvertToBase64();
-                     print("immggg ${img64!.base64}");
-                        },
+                      var selcetedImage = await pickAndResizeImage();
+
+                      if (selcetedImage == null) {
+                        print("no image selected");
+                      } else {
+                        undp.updateSelectedImage(selcetedImage);
+                      }
+                      print(undp.image?.path);
+                    },
                     style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5))),
                     child: takePhoto(),
                   ),
                   const SizedBox(height: 5),
-                  uplaodPicture(),
-                  const SizedBox(
-                    height: 10,
-                  ),
                   const Divider(
                     thickness: 2,
                   ),
@@ -115,7 +136,7 @@ Widget takePhoto() {
             width: 10,
           ),
           Text(
-            "Take Photo",
+            "Select Photo",
             style: TextStyle(fontSize: 15),
           ),
         ],
@@ -165,7 +186,7 @@ class _EnterDetailsFormState extends State<EnterDetailsForm> {
 
   @override
   Widget build(BuildContext context) {
-    var vnp = Provider.of<UpdateNinDataProvider>(context);
+    var undp = Provider.of<UpdateNinDataProvider>(context);
     return Container(
       child: Form(
         key: _formKey,
@@ -173,17 +194,17 @@ class _EnterDetailsFormState extends State<EnterDetailsForm> {
           //crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             textFieldForForm("First Name*", "Enter your first name", "Required",
-                vnp.firstnameController, editable),
+                undp.firstnameController, editable),
             const SizedBox(
               height: 20,
             ),
             textFieldForForm("Last Name*", "Enter your last name", "Required",
-                vnp.surnameController, editable),
+                undp.surnameController, editable),
             const SizedBox(
               height: 20,
             ),
             textFieldForForm("Middle Name*", "Enter your middle name",
-                "Optional", vnp.middlenameController, editable),
+                "Optional", undp.middlenameController, editable),
             const SizedBox(
               height: 20,
             ),
@@ -200,7 +221,7 @@ class _EnterDetailsFormState extends State<EnterDetailsForm> {
               child: ElevatedButton(
                 onPressed: () {
                   // Validate returns true if the form is valid, or false otherwise.
-                  if (_formKey.currentState?.validate() == true) {
+                  if (_formKey.currentState?.validate() == true && undp.image != null ) {
                     // Save the form values
                     _formKey.currentState?.save();
 
@@ -217,6 +238,15 @@ class _EnterDetailsFormState extends State<EnterDetailsForm> {
                     // ScaffoldMessenger.of(context).showSnackBar(
                     //   SnackBar(content: Text('Form successfully submitted!')),
                     // );
+                  }else{
+                    Fluttertoast.showToast(
+            msg: "Please select a passport photo ",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.black87,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
                   }
                 },
                 style: ButtonStyle(
@@ -316,7 +346,7 @@ Widget genderDropDown() {
 }
 
 Future<CompressedImageResult?> pickCompressAndConvertToBase64() async {
- final picker = ImagePicker();
+  final picker = ImagePicker();
   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
   if (pickedFile == null) return null;
@@ -347,4 +377,32 @@ class CompressedImageResult {
   final String base64;
 
   CompressedImageResult({required this.file, required this.base64});
+}
+
+Future<File?> pickAndResizeImage() async {
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+  if (pickedFile == null) return null;
+
+  // Read as bytes and decode using `image` package
+  final originalBytes = await pickedFile.readAsBytes();
+  final originalImage = img.decodeImage(originalBytes);
+
+  if (originalImage == null) return null;
+
+  // Resize to 600x600
+  final resizedImage = img.copyResize(originalImage, width: 600, height: 600);
+
+  // Convert to PNG or JPG bytes
+  final resizedBytes = img.encodeJpg(resizedImage);
+
+  // Save resized image to temporary directory
+  final tempDir = await getTemporaryDirectory();
+  final resizedFile = File(join(tempDir.path, 'resized_passport.jpg'))
+    ..writeAsBytesSync(resizedBytes);
+
+  return resizedFile;
+
+  // Now _resizedImage can be sent to backend via multipart/form-data
 }

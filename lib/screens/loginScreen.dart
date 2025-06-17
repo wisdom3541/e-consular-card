@@ -19,47 +19,45 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              appBar(),
-              SizedBox(
-                height: 50.h,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            appBar(),
+            SizedBox(
+              height: 50.h,
+            ),
+            Container(
+              padding:  EdgeInsets.symmetric(horizontal: 20.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   Text(
+                    "Welcome Back",
+                    style:
+                        TextStyle(fontSize: 25.sp, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                   Text(
+                    "Enter your credentials",
+                    style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey),
+                  ),
+                  SizedBox(
+                    height: 50,
+                  ),
+                  LoginForm(),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  createAnAccount(context)
+                ],
               ),
-              Container(
-                padding:  EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                     Text(
-                      "Welcome Back",
-                      style:
-                          TextStyle(fontSize: 25.sp, fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                     Text(
-                      "Enter your credentials",
-                      style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey),
-                    ),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    LoginForm(),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    createAnAccount(context)
-                  ],
-                ),
-              )
-            ],
-          ),
+            )
+          ],
         ),
       ),
     );
@@ -127,7 +125,14 @@ class _LoginFormState extends State<LoginForm> {
                   // Save the form values
                   _formKey.currentState?.save();
                   showLoadingSpinner(context);
-                  await loginScreenProvider.login(email,password);
+                  print("email: $email");
+                  print("password: $password");
+                  bool loggedIn = await loginScreenProvider.login(email,password);
+                  if(!loggedIn){
+                    Navigator.pop(context);
+                    showSnackBar(context);
+                    return;
+                  }
                   final userToken = loginScreenProvider.userLoggedInToken;
                   await dashboardProvider.getAllDashboardData(userToken);
                   await cartProvider.updateCartResponse(userToken);
@@ -143,7 +148,12 @@ class _LoginFormState extends State<LoginForm> {
                     SnackBar(content: Text('Logged IN successfully!')),
                   );
 
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> HomePage()));
+                   Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage()),
+                    (Route<dynamic> route) =>
+                        false, // Remove all previous routes
+                  );
                    }
                 },
                 style: ButtonStyle(
@@ -272,4 +282,32 @@ Widget passwordTextField(String title, String hint,
       ),
     ],
   );
+}
+
+void showSnackBar(BuildContext context){
+  ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+    content: Row(
+      children: const [
+        Icon(Icons.error_outline, color: Colors.white),
+        SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            "Wrong credentials. Please check your email and password.",
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      ],
+    ),
+    backgroundColor: Color(0xFF24985B),
+    behavior: SnackBarBehavior.floating,
+    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    duration: const Duration(seconds: 4),
+  ),
+);
+
 }

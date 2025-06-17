@@ -8,12 +8,13 @@ part of 'cart_response.dart';
 
 CartResponse _$CartResponseFromJson(Map<String, dynamic> json) => CartResponse(
       success: json['success'] as bool,
-      message: json['message'] as String,
-      orderId: json['orderID'] as String,
-      totalAmount: json['totalAmount'] as num,
-      items: (json['items'] as List<dynamic>)
-          .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
+      message: json['message'] as String?,
+      orderId: json['orderID'] as String?,
+      totalAmount: json['totalAmount'] as num?,
+      items: (json['items'] as List<dynamic>?)
+          ?.map((e) => CartItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      cart: json['cart'] as List<dynamic>?,
     );
 
 Map<String, dynamic> _$CartResponseToJson(CartResponse instance) =>
@@ -23,6 +24,7 @@ Map<String, dynamic> _$CartResponseToJson(CartResponse instance) =>
       'orderID': instance.orderId,
       'totalAmount': instance.totalAmount,
       'items': instance.items,
+      'cart': instance.cart,
     };
 
 CartItem _$CartItemFromJson(Map<String, dynamic> json) => CartItem(

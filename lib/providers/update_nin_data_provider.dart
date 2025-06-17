@@ -1,12 +1,19 @@
+import 'dart:io';
+
 import 'package:e_document_request/models/citizen_data.dart';
 import 'package:e_document_request/models/update_with_nin.dart';
 import 'package:e_document_request/providers/create_acccount_with_nin_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class UpdateNinDataProvider extends ChangeNotifier {
   late CitizenData citizenData;
   late UpdateWithNin updateWithNinData;
   DateTime? selectedDate;
+  File? image ;
 
  // final batchidController = TextEditingController();
   final birthcountryController = TextEditingController();
@@ -68,7 +75,9 @@ class UpdateNinDataProvider extends ChangeNotifier {
   final nokEmailController = TextEditingController();
   final dobController = TextEditingController();
 
+  @override
   void dispose() {
+    super.dispose();
   //  batchidController.dispose();
     birthcountryController.dispose();
     birthdateController.dispose();
@@ -141,6 +150,14 @@ class UpdateNinDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
+void updateSelectedImage(File img){
+  image = img;
+  notifyListeners();
+}
+
+
+
   void populateRetrievedData() {
     firstnameController.text = citizenData.firstname!;
     surnameController.text = citizenData.surname!;
@@ -175,7 +192,7 @@ UpdateWithNin createModelFromControllers(String hashedID) {
     AddressofResidence: residenceAddressLine1Controller.text,
     AddressInNigeria: originAddressLine1Controller.text,
     StateofResidence: residenceStateController.text,
-    CountryofResidence: "NG",
+    CountryofResidence: "Nigeria",
     MeansofID: "National Identity Number",
     NOKFirstname: nokFirstnameController.text,
     NOKMiddlename: nokMiddlenameController.text,
@@ -184,7 +201,6 @@ UpdateWithNin createModelFromControllers(String hashedID) {
     NOKPhoneNumber: nokTelephonenoController.text,
     NOKRelationship: nokRelationshipController.text,
     NOKEmail: nokEmailController.text,
-    passport: "",
   );
 }
 

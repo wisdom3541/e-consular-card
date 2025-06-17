@@ -1,5 +1,8 @@
 import 'package:e_document_request/providers/loggedIn/cart_provider.dart';
+import 'package:e_document_request/providers/login_screen_provider.dart';
 import 'package:e_document_request/screens/cartPayWithCard.dart';
+import 'package:e_document_request/screens/paymentSucessful.dart';
+import 'package:e_document_request/screens/paystack_payment_popup.dart';
 import 'package:e_document_request/screens/widgets/no_item_in_cart_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +16,14 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var cartProvider = Provider.of<CartProvider>(context);
     var cartItems = cartProvider.cartItems;
+    String token = Provider.of<LoginScreenProvider>(context).userLoggedInToken;
 
     return SafeArea(
-      child: SafeArea(
+        child: SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: SingleChildScrollView( // Wrap the full body in scroll view
+        body: SingleChildScrollView(
+          // Wrap the full body in scroll view
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 28.h),
             child: Column(
@@ -37,7 +42,7 @@ class CartScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 15),
                 ),
                 const SizedBox(height: 20),
-                
+
                 // Cart Items Section
                 cartItems.isEmpty
                     ? const NoItemInCart()
@@ -49,7 +54,8 @@ class CartScreen extends StatelessWidget {
                           final item = cartItems[index];
                           return Column(
                             children: [
-                              itemInCart(item.documentName, item.documentAmount),
+                              itemInCart(
+                                  item.documentName, item.documentAmount),
                               const SizedBox(height: 20),
                             ],
                           );
@@ -61,15 +67,16 @@ class CartScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 cartTotal("25,075"),
                 const SizedBox(height: 20),
-                proceedButton(context),
+                cartItems.isEmpty
+                    ? SizedBox.shrink()
+                    : proceedButton(context, token),
                 const SizedBox(height: 30), // bottom spacing
               ],
             ),
           ),
         ),
       ),
-    )
-    );
+    ));
   }
 }
 
@@ -139,7 +146,7 @@ Widget cartSummary() {
         const SizedBox(
           height: 15,
         ),
-        cartSummaryContent("Subtotal", "25,075"),
+        cartSummaryContent("Subtotal", "0"),
         const SizedBox(
           height: 30,
         ),
@@ -191,7 +198,9 @@ Widget cartTotal(String price) {
   );
 }
 
-Widget proceedButton(BuildContext context) {
+Widget proceedButton(BuildContext context, String token) {
+  var cp = Provider.of<CartProvider>(context);
+
   return Container(
     width: double.infinity,
     height: 56.h,
@@ -200,9 +209,38 @@ Widget proceedButton(BuildContext context) {
           backgroundColor: Color(0xFF24985B),
           shape: RoundedRectangleBorder(
               side: BorderSide.none, borderRadius: BorderRadius.circular(5.r))),
-      onPressed: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => CartPayWithCard()));
+      onPressed: () async {
+        var result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PaystackPaymentPopup(),
+          ),
+        );
+
+        if (result != null) {
+          if (result["status"] == "success") {
+            cp.emptyCart();
+
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PaymentSucessful()));
+          } else if (result["status"] == "cancelled") {
+            // Handle cancellation
+            showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                      title: Text("Cancelled"),
+                      content: Text(result["message"]),
+                    ));
+          } else {
+            // Handle error
+            showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                      title: Text("Error"),
+                      content: Text(result["message"]),
+                    ));
+          }
+        }
       },
       child: Text(
         "Proceed to Pay",

@@ -6,7 +6,7 @@ class LoginScreenProvider extends ChangeNotifier{
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  late String userLoggedInToken;
+   String userLoggedInToken = "";
 
   @override
   void dispose() {
@@ -21,11 +21,25 @@ class LoginScreenProvider extends ChangeNotifier{
       notifyListeners();
   }
 
-  Future<void> login(String email, String password) async{
+Future<bool> login(String email, String password) async {
+  try {
     var response = await UserLoginApi().userLogin(email, password);
-    updateUserLoggedInToken(response!.token);
-    
-    print("REPONSE: $userLoggedInToken");
-    notifyListeners();
+
+    if (response != null && response.token != null) {
+      updateUserLoggedInToken(response.token!);
+      print("RESPONSE: $userLoggedInToken");
+      notifyListeners();
+      return true;
+    } else {
+      print("Login failed: ${response?.error ?? 'Unknown error'}");
+      return false;
+      // Optionally, you can show a toast/snackbar/dialog here
+    }
+  } catch (e) {
+    print("Login error: $e");
+    return false;
+    // Optionally: show a user-friendly error here too
   }
+}
+
 }

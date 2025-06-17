@@ -24,7 +24,12 @@ class AllCartApi {
 
       if (response.statusCode == 200) {
         print(json.encode(response.data));
-        return CartResponse.fromJson(response.data);
+        var cartResponse = CartResponse.fromJson(response.data);
+        if(cartResponse.success){
+          return cartResponse;
+        }else{
+          return null;
+        }
       } else {
         print(response.statusMessage);
       }
@@ -53,7 +58,7 @@ class AllCartApi {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Authorization':
-            'Bearer 165|rXSXAP4LNw5dWVMXiQHKTOKvVHIGu41p5b64nYLLfb9dee9b'
+            'Bearer $token'
       };
       var data = json.encode({"document_id": "47-120-8441"});
       var dio = Dio();

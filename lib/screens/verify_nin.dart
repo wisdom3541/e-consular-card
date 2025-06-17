@@ -178,11 +178,12 @@ Widget createAccountButton(BuildContext context) {
           appState.updateNin(ninController.text);
           Navigator.of(context).pop();
           cawnp.updateNin(ninController.text);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const CreateAccountWithNIN()),
-          );
+          Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CreateAccountWithNIN()),
+                    (Route<dynamic> route) =>
+                        false, // Remove all previous routes
+                  );
         }
       },
       style: ButtonStyle(
