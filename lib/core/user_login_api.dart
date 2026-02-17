@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:e_document_request/models/login_response.dart';
+import 'package:e_consular_card/models/login_response.dart';
 
 class UserLoginApi {
 

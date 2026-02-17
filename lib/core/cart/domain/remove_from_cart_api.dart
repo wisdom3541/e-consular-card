@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:e_document_request/core/cart/data/remove_from_cart_response.dart';
+import 'package:e_consular_card/core/cart/data/remove_from_cart_response.dart';
 
 class RemoveFromCartApi {
   Future<RemoveFromCartResponse?> removeFromCart(String token, String docId) async {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:e_document_request/core/cart/data/cart_response.dart';
+import 'package:e_consular_card/core/cart/data/cart_response.dart';
 
 class AllCartApi {
   Future<CartResponse?> getAllCartItems(String token) async {
@@ -35,6 +35,12 @@ class AllCartApi {
       }
     } on DioException catch (e) {
       if (e.response != null) {
+
+        if (e.response?.statusCode == 404) {
+          print("in cart");
+    print("🚨 404 Error: ${e.response?.data}");
+   
+        }
         // The server responded with a status other than 200
         print('Server error: ${e.response?.statusCode}');
         print('Message: ${e.response?.data}');

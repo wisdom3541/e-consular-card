@@ -2,7 +2,7 @@
 <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="e_document_request"
+        android:label="E-consular Card"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

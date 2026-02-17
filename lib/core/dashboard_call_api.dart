@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:e_document_request/models/document/document_response.dart';
-import 'package:e_document_request/models/userResponse/citizen_response.dart';
+import 'package:e_consular_card/models/document/document_response.dart';
+import 'package:e_consular_card/models/userResponse/citizen_response.dart';
 
 class DashboardCallApi {
 

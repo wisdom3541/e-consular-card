@@ -1,4 +1,4 @@
-import 'package:e_document_request/models/userResponse/citizen.dart';
+import 'package:e_consular_card/models/userResponse/citizen.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'citizen_response.g.dart';

@@ -1,4 +1,4 @@
-import 'package:e_document_request/core/registeration_data_api.dart';
+import 'package:e_consular_card/core/registeration_data_api.dart';
 import 'package:flutter/material.dart';
 
 class OtpProvider extends ChangeNotifier {
@@ -18,9 +18,9 @@ class OtpProvider extends ChangeNotifier {
   }
 
 
-   void getUserRegisterationdetails(String hashId) async {
-    var data = await RegisterationDataApi().getUserRegisterationdetails(hashId);
-    print(data.toString());
-    notifyListeners();
-   }
+  //  void getUserRegisterationdetails(String hashId) async {
+  //   var data = await RegisterationDataApi().getUserRegisterationdetails(hashId);
+  //   print(data.toString());
+  //   notifyListeners();
+  //  }
 }

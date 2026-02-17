@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:e_document_request/models/update_with_nin.dart';
+import 'package:e_consular_card/models/update_with_nin.dart';
 
 class UpdateWithNinApi {
 //   Future<String?> updateNinData(UpdateWithNin updateWithNin) async {
@@ -49,7 +49,8 @@ class UpdateWithNinApi {
 //   }
 
 
-Future<String?> updateNinData(UpdateWithNin updateWithNin, File passportFile) async {
+  Future<String?> updateNinData(
+      UpdateWithNin updateWithNin, File passportFile) async {
     try {
       print("impagegege :: ${passportFile.path}");
       final dio = Dio();
@@ -59,7 +60,7 @@ Future<String?> updateNinData(UpdateWithNin updateWithNin, File passportFile) as
         ...updateWithNin.toJson(), // adds all other fields
         'passport': await MultipartFile.fromFile(
           passportFile.path,
-          filename: 'passport.jpg', // or .png depending on the file
+          filename: 'passport.jpg',
         ),
       });
 

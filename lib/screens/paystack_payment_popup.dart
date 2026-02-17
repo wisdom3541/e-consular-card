@@ -1,21 +1,25 @@
 import 'dart:convert';
-import 'package:e_document_request/core/verify_payment_api.dart';
-import 'package:e_document_request/providers/loggedIn/cart_provider.dart';
-import 'package:e_document_request/providers/login_screen_provider.dart';
-import 'package:e_document_request/screens/createAccountWithNIN.dart';
+import 'package:e_consular_card/core/verify_payment_api.dart';
+import 'package:e_consular_card/providers/loggedIn/cart_provider.dart';
+import 'package:e_consular_card/providers/login_screen_provider.dart';
+import 'package:e_consular_card/screens/createAccountWithNIN.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaystackPaymentPopup extends StatefulWidget {
-  const PaystackPaymentPopup({Key? key}) : super(key: key);
+  final int amount ;
+  const PaystackPaymentPopup({Key? key,  required this.amount}) : super(key: key);
 
   @override
   State<PaystackPaymentPopup> createState() => _PaystackPaymentPopup();
 }
 
 class _PaystackPaymentPopup extends State<PaystackPaymentPopup> {
+
+ 
+  
   late final WebViewController _controller;
   bool showWebView = false;
   String checkoutUrl = "";
@@ -28,6 +32,8 @@ class _PaystackPaymentPopup extends State<PaystackPaymentPopup> {
       "sk_test_3e0e21fd3894518acde834a3ca5b8e71a2cd6d89";
 
   Future<void> initializeTransaction() async {
+
+    int amountInKobo = widget.amount * 100;
     setState(() {
       isLoading = true;
     });
@@ -42,7 +48,7 @@ class _PaystackPaymentPopup extends State<PaystackPaymentPopup> {
 
     final body = jsonEncode({
       'email': testEmail,
-      'amount': 2800000,
+      'amount': amountInKobo,
       'callback_url': 'https://myapp.com/paystack/callback',
       'cancel_url': 'https://yourapp.com/cancel',
       'metadata': {

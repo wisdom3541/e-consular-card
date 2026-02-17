@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:e_document_request/core/cart/data/add_to_cart_response.dart';
+import 'package:e_consular_card/core/cart/data/add_to_cart_response.dart';
 
 class AddToCartApi {
 

@@ -1,4 +1,4 @@
-import 'package:e_document_request/core/user_login_api.dart';
+import 'package:e_consular_card/core/user_login_api.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreenProvider extends ChangeNotifier{
@@ -11,8 +11,8 @@ class LoginScreenProvider extends ChangeNotifier{
   @override
   void dispose() {
     // TODO: implement dispose
-   // emailController.dispose();
-    //passwordController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
