@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../domain/entities/ticket.dart';
 import '../providers/support_provider.dart';
 
 class CreateTicketDialog extends StatefulWidget {
@@ -18,11 +17,25 @@ class _CreateTicketDialogState extends State<CreateTicketDialog> {
   final _formKey = GlobalKey<FormState>();
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
-  
-  TicketCategory? _selectedCategory;
-  TicketPriority _selectedPriority = TicketPriority.low;
-  File? _attachmentFile;
-  final ImagePicker _picker = ImagePicker();
+
+  String? _selectedCategory;
+  String? _selectedPriority;
+  File? _selectedFile;
+  String? _fileName;
+
+  final List<String> _categories = [
+    'Technical',
+    'Billing',
+    'Account',
+    'General',
+    'Other',
+  ];
+
+  final List<String> _priorities = [
+    'Low',
+    'Medium',
+    'High',
+  ];
 
   @override
   void dispose() {
@@ -32,20 +45,36 @@ class _CreateTicketDialogState extends State<CreateTicketDialog> {
   }
 
   Future<void> _pickFile() async {
-    final XFile? file = await _picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1920,
-      maxHeight: 1080,
-    );
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
+      );
 
-    if (file != null) {
-      setState(() {
-        _attachmentFile = File(file.path);
-      });
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _selectedFile = File(result.files.single.path!);
+          _fileName = result.files.single.name;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to pick file: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
-  Future<void> _submitTicket() async {
+  void _removeFile() {
+    setState(() {
+      _selectedFile = null;
+      _fileName = null;
+    });
+  }
+
+  Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedCategory == null) {
@@ -58,20 +87,51 @@ class _CreateTicketDialogState extends State<CreateTicketDialog> {
       return;
     }
 
+    if (_selectedPriority == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a priority'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
     final provider = context.read<SupportProvider>();
-    
+
     final success = await provider.createTicket(
-      subject: _subjectController.text,
+      subject: _subjectController.text.trim(),
       category: _selectedCategory!,
-      priority: _selectedPriority,
-      message: _messageController.text,
-      attachmentPath: _attachmentFile?.path,
+      priority: _selectedPriority!,
+      message: _messageController.text.trim(),
+      file: _selectedFile,
     );
 
     if (!mounted) return;
 
+           // Close loading dialog
+  Navigator.of(context, rootNavigator: true).pop();
+
+    print("Success: $success");
+    print("Success: $success");
+    print("Success: $success");
+    print("Success: $success");
+    print("Success: $success");
+
     if (success) {
-      Navigator.pop(context);
+
+      // Close dialog
+       Navigator.of(context).pop();
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Ticket created successfully!'),
@@ -95,305 +155,294 @@ class _CreateTicketDialogState extends State<CreateTicketDialog> {
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Container(
-        width: double.infinity,
-        constraints: BoxConstraints(maxHeight: 700.h),
-        padding: EdgeInsets.all(24.w),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Create New Ticket',
-                      style: TextStyle(
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
+        constraints: BoxConstraints(maxHeight: 600.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              padding: EdgeInsets.all(20.w),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16.r),
+                  topRight: Radius.circular(16.r),
                 ),
-                
-                SizedBox(height: 24.h),
-                
-                // Subject
-                Text(
-                  'Subject',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                TextFormField(
-                  controller: _subjectController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter subject',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Create Support Ticket',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a subject';
-                    }
-                    return null;
-                  },
-                ),
-                
-                SizedBox(height: 20.h),
-                
-                // Category
-                Text(
-                  'Category',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
-                ),
-                SizedBox(height: 8.h),
-                DropdownButtonFormField<TicketCategory>(
-                  value: _selectedCategory,
-                  decoration: InputDecoration(
-                    hintText: 'Select Category',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  items: TicketCategory.values.map((category) {
-                    return DropdownMenuItem(
-                      value: category,
-                      child: Text(_getCategoryText(category)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCategory = value;
-                    });
-                  },
-                ),
-                
-                SizedBox(height: 20.h),
-                
-                // Priority
-                Text(
-                  'Priority',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                DropdownButtonFormField<TicketPriority>(
-                  value: _selectedPriority,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  items: TicketPriority.values.map((priority) {
-                    return DropdownMenuItem(
-                      value: priority,
-                      child: Text(_getPriorityText(priority)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedPriority = value;
-                      });
-                    }
-                  },
-                ),
-                
-                SizedBox(height: 20.h),
-                
-                // Message
-                Text(
-                  'Message',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                TextFormField(
-                  controller: _messageController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    hintText: 'Describe your issue...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please describe your issue';
-                    }
-                    return null;
-                  },
-                ),
-                
-                SizedBox(height: 20.h),
-                
-                // Attachment
-                Text(
-                  'Attachment (optional)',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                GestureDetector(
-                  onTap: _pickFile,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 6.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(4.r),
-                          ),
-                          child: Text(
-                            'Choose File',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: Text(
-                            _attachmentFile == null
-                                ? 'No file chosen'
-                                : _attachmentFile!.path.split('/').last,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.grey.shade600,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                
-                SizedBox(height: 32.h),
-                
-                // Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        'Cancel',
+                ],
+              ),
+            ),
+
+            // Form
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(20.w),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Subject
+                      Text(
+                        'Subject *',
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Consumer<SupportProvider>(
-                      builder: (context, provider, _) {
-                        return ElevatedButton(
-                          onPressed: provider.isLoading ? null : _submitTicket,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                      SizedBox(height: 8.h),
+                      TextFormField(
+                        controller: _subjectController,
+                        decoration: InputDecoration(
+                          hintText: 'Brief description of your issue',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Subject is required';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: 16.h),
+
+                      // Category
+                      Text(
+                        'Category *',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      DropdownButtonFormField<String>(
+                        value: _selectedCategory,
+                        decoration: InputDecoration(
+                          hintText: 'Select category',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                        ),
+                        items: _categories.map((category) {
+                          return DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCategory = value;
+                          });
+                        },
+                      ),
+
+                      SizedBox(height: 16.h),
+
+                      // Priority
+                      Text(
+                        'Priority *',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      DropdownButtonFormField<String>(
+                        value: _selectedPriority,
+                        decoration: InputDecoration(
+                          hintText: 'Select priority',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                        ),
+                        items: _priorities.map((priority) {
+                          return DropdownMenuItem(
+                            value: priority,
+                            child: Text(priority),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedPriority = value;
+                          });
+                        },
+                      ),
+
+                      SizedBox(height: 16.h),
+
+                      // Message
+                      Text(
+                        'Message *',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      TextFormField(
+                        controller: _messageController,
+                        maxLines: 5,
+                        decoration: InputDecoration(
+                          hintText: 'Describe your issue in detail',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Message is required';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: 16.h),
+
+                      // File Attachment
+                      Text(
+                        'Attachment (Optional)',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+
+                      if (_selectedFile == null)
+                        OutlinedButton.icon(
+                          onPressed: _pickFile,
+                          icon: const Icon(Icons.attach_file),
+                          label: const Text('Attach File'),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
                             padding: EdgeInsets.symmetric(
-                              horizontal: 24.w,
+                              horizontal: 16.w,
                               vertical: 12.h,
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
                           ),
-                          child: provider.isLoading
-                              ? SizedBox(
-                                  width: 20.w,
-                                  height: 20.w,
-                                  child: const CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  'Submit Ticket',
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                        )
+                      else
+                        Container(
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.insert_drive_file, size: 24.sp),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: Text(
+                                  _fileName ?? 'Unknown file',
+                                  style: TextStyle(fontSize: 13.sp),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                        );
-                      },
-                    ),
-                  ],
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, color: Colors.red),
+                                onPressed: _removeFile,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      SizedBox(height: 8.h),
+
+                      Text(
+                        'Allowed: JPG, PNG, PDF, DOC, DOCX',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
+
+            // Actions
+            Container(
+              padding: EdgeInsets.all(20.w),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade200),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  SizedBox(width: 12.w),
+                  ElevatedButton(
+                    onPressed: _handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.w,
+                        vertical: 12.h,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  String _getCategoryText(TicketCategory category) {
-    switch (category) {
-      case TicketCategory.technical:
-        return 'Technical';
-      case TicketCategory.billing:
-        return 'Billing';
-      case TicketCategory.account:
-        return 'Account';
-      case TicketCategory.cardRequest:
-        return 'Card Request';
-      case TicketCategory.general:
-        return 'General';
-    }
-  }
-
-  String _getPriorityText(TicketPriority priority) {
-    switch (priority) {
-      case TicketPriority.low:
-        return 'Low';
-      case TicketPriority.medium:
-        return 'Medium';
-      case TicketPriority.high:
-        return 'High';
-      case TicketPriority.urgent:
-        return 'Urgent';
-    }
   }
 }

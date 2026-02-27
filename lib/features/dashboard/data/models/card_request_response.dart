@@ -29,6 +29,7 @@ class CardRequestData {
   final String validity;
   final List<ServiceItem> services;
   final bool isDeliveryIncluded;
+  final String? deliveryCost;
 
   CardRequestData({
     required this.transactionId,
@@ -36,7 +37,8 @@ class CardRequestData {
     required this.amount,
     required this.validity,
     required this.services,
-    required this.isDeliveryIncluded,
+    this.isDeliveryIncluded = false,
+    this.deliveryCost,
   });
 
   factory CardRequestData.fromJson(Map<String, dynamic> json) {
@@ -50,6 +52,7 @@ class CardRequestData {
               .toList() ??
           [],
       isDeliveryIncluded: json['is_delivery_included'] ?? false,
+       deliveryCost: json['delivery_cost']?.toString(),
     );
   }
 }

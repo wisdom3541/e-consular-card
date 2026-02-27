@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 class PaymentHistoryResponse {
@@ -90,7 +91,7 @@ class PaymentHistoryItem {
       paymentableType: json['paymentable_type']?.toString() ?? '',
       paymentableId: json['paymentable_id']?.toString() ?? '',
       reference: json['reference']?.toString() ?? '',
-      meta: PaymentMeta.fromJson(json['meta'] ?? {}),
+      meta: _parseMeta(json['meta']),
       createdAt: json['created_at']?.toString() ?? '',
       updatedAt: json['updated_at']?.toString() ?? '',
     );
@@ -109,6 +110,17 @@ class PaymentHistoryItem {
         return meta.status;
     }
   }
+
+  static PaymentMeta _parseMeta(dynamic metaData) {
+  if (metaData is String) {
+    final decoded = jsonDecode(metaData);
+    return PaymentMeta.fromJson(decoded);
+  } else if (metaData is Map<String, dynamic>) {
+    return PaymentMeta.fromJson(metaData);
+  } else {
+    return PaymentMeta.fromJson({});
+  }
+}
 
   Color get statusColor {
     switch (meta.status.toLowerCase()) {

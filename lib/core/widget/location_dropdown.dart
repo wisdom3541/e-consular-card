@@ -98,7 +98,7 @@ class _LocationDropdownState<T> extends State<LocationDropdown<T>> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: isSelected
-                      ? const Color.fromRGBO(232, 245, 239, 1)
+                      ? Colors.white
                       : const Color.fromRGBO(252, 255, 253, 1),
                   hintText: widget.hint,
                   hintStyle: TextStyle(

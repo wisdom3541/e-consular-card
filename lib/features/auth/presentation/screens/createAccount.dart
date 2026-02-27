@@ -1,3 +1,4 @@
+import 'package:e_consular_card/features/auth/presentation/screens/login_page.dart';
 import 'package:e_consular_card/features/auth/presentation/screens/nin_verification_page.dart';
 import 'package:e_consular_card/features/auth/presentation/screens/register_with_nin_page.dart';
 import 'package:e_consular_card/features/auth/presentation/screens/register_without_nin.dart';
@@ -143,8 +144,9 @@ class CreateAccountPage extends StatelessWidget {
   Widget _buildAlreadyHaveAccount(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // TODO: Navigate to login screen
-        _showComingSoonDialog(context, "Login");
+        Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) => const LoginPage(),
+        ));
       },
       child: Wrap(
         children: [

@@ -141,11 +141,11 @@ class _SignaturePageState extends State<SignaturePage> with SingleTickerProvider
   Widget _buildCreateView() {
     return Column(
       children: [
-        SizedBox(height: 30.h),
+        SizedBox(height: 50.h),
         TabBar(
           controller: _tabController,
           labelColor: AppColors.primary,
-          unselectedLabelColor: Colors.grey,
+             unselectedLabelColor: Colors.grey,
           indicatorColor: AppColors.primary,
           tabs: const [
             Tab(icon: Icon(Icons.draw), text: 'Draw'),
@@ -156,6 +156,7 @@ class _SignaturePageState extends State<SignaturePage> with SingleTickerProvider
         Expanded(
           child: TabBarView(
             controller: _tabController,
+            physics: const NeverScrollableScrollPhysics(),
             children: const [
               _DrawSignatureTab(),
               _UploadSignatureTab(),
@@ -590,7 +591,7 @@ void _saveTypedSignature() async {
                       ? 'Your signature will appear here'
                       : _nameController.text,
                   style: TextStyle(
-                    
+                    fontFamily: _selectedFont,
                     fontSize: 32.sp,
                     color: Colors.black,
                   ),

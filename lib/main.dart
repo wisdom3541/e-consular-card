@@ -16,6 +16,7 @@ import 'package:e_consular_card/features/payments/data/datasources/payment_remot
 import 'package:e_consular_card/features/payments/presentation/providers/payment_processing_provider.dart';
 import 'package:e_consular_card/features/payments/presentation/providers/payment_provider.dart';
 import 'package:e_consular_card/features/signature/presentation/providers/signature_provider.dart';
+import 'package:e_consular_card/features/support/data/datasources/support_remote_datasource.dart';
 import 'package:e_consular_card/features/support/presentation/providers/support_provider.dart';
 import 'package:e_consular_card/providers/app_provider.dart';
 import 'package:e_consular_card/providers/create_acccount_with_nin_provider.dart';
@@ -97,13 +98,18 @@ class MyApp extends StatelessWidget {
           ),
         ),
         // ChangeNotifierProvider(create: (_) => CardRequestProvider()),
-       
+
         ChangeNotifierProvider(
           create: (_) => PaymentProvider(
             paymentDataSource: getIt<PaymentRemoteDataSource>(),
           ),
         ),
-        ChangeNotifierProvider(create: (_) => SupportProvider()),
+
+        ChangeNotifierProvider(
+          create: (_) => SupportProvider(
+            supportDataSource: getIt<SupportRemoteDataSource>(),
+          ),
+        ),
 
         // Payment Processing Provider
         ChangeNotifierProvider(
@@ -123,7 +129,7 @@ class MyApp extends StatelessWidget {
             cardRequestDataSource: getIt<CardRequestRemoteDataSource>(),
           ),
         ),
-        ChangeNotifierProvider(create: (_) => SupportProvider()),
+       
 
         ChangeNotifierProvider(
           create: (_) => LocationProvider(

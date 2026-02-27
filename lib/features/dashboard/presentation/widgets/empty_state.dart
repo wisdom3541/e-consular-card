@@ -51,7 +51,7 @@ class EmptyState extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
             ),
             child: Text(
-              'Request New Document',
+              'Request New Card',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15.sp,

@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -71,28 +72,25 @@ class _CompleteRegistrationPageState extends State<CompleteRegistrationPage> {
   final _kinRelationshipController = TextEditingController();
   final _kinAddressController = TextEditingController();
 
-
   // Location selections
   Country? _selectedCountry;
   StateModel? _selectedState;
   Lga? _selectedLga;
 
+  @override
+  void initState() {
+    super.initState();
 
-@override
-void initState() {
-  super.initState();
-  
-  // Debug: Check if token is available
-  final storageService = getIt<StorageService>();
-  final token = storageService.getFullToken();
-  print('🔑 Token in Complete Registration: $token');
-  _firstNameController.text = storageService.getUserFirstName() ?? '';
-  _lastNameController.text = storageService.getUserLastName() ?? '';
-}
+    // Debug: Check if token is available
+    final storageService = getIt<StorageService>();
+    final token = storageService.getFullToken();
+    print('🔑 Token in Complete Registration: $token');
+    _firstNameController.text = storageService.getUserFirstName() ?? '';
+    _lastNameController.text = storageService.getUserLastName() ?? '';
+  }
+
   @override
   void dispose() {
-
-    
     // Personal Info
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -101,7 +99,7 @@ void initState() {
     _country.dispose();
     _heightController.dispose();
     _numberOfChildrenController.dispose();
-    //additional info 
+    //additional info
     _addressController.dispose();
     _foreignAddressController.dispose();
     _countryOfResidenceController.dispose();
@@ -114,7 +112,6 @@ void initState() {
     _motherMaidenNameController.dispose();
     _idNumberController.dispose();
     _expiryDateController.dispose();
-
 
     // Next of Kin
     _kinFirstNameController.dispose();
@@ -152,10 +149,8 @@ void initState() {
     }
   }
 
- 
   Future<void> _handleSubmit() async {
     if (!_kinFormKey.currentState!.validate()) return;
-
 
     final authProvider = context.read<AuthProvider>();
 
@@ -192,16 +187,16 @@ void initState() {
     if (success) {
       showSuccessSnackbar(context, 'Registration completed successfully!');
       final dashboardProvider = context.read<DashboardProvider>();
-    dashboardProvider.markRegistrationAsComplete();
+      dashboardProvider.markRegistrationAsComplete();
 
-     // Show loading for refresh
-    showLoadingDialog(context);
-    
-    // Refresh dashboard data to get updated regStatus
-    await dashboardProvider.loadDashboardData();
-    
-    if (!mounted) return;
-    hideLoadingDialog(context);
+      // Show loading for refresh
+      showLoadingDialog(context);
+
+      // Refresh dashboard data to get updated regStatus
+      await dashboardProvider.loadDashboardData();
+
+      if (!mounted) return;
+      hideLoadingDialog(context);
 
       // Navigate to main app
       Navigator.pushAndRemoveUntil(
@@ -216,7 +211,8 @@ void initState() {
         context,
         authProvider.errorMessage ?? 'Failed to complete registration',
       );
-    }}
+    }
+  }
 
   bool _validateCurrentPage() {
     switch (_currentPage) {
@@ -362,9 +358,8 @@ void initState() {
   }
 
   Widget _buildPersonalInfoForm() {
+    final locationProvider = context.watch<LocationProvider>();
 
-  final locationProvider = context.watch<LocationProvider>();
-  
     return Form(
       key: _personalFormKey,
       child: SingleChildScrollView(
@@ -427,25 +422,39 @@ void initState() {
               ],
             ),
             SizedBox(height: 16.h),
-           
-          PhoneNumberField(
-            label: "Phone Number",
-            controller: _phoneController,
-            dialCode: _selectedCountry?.dialCode,
-            hint: "Enter Phone Number",
-            maxLength: 11,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Phone Number is required";
-              }
-              return null;
-            },
-          ),
+
+            PhoneNumberField(
+              label: "Phone Number",
+              controller: _phoneController,
+              dialCode: _selectedCountry?.dialCode,
+              hint: "Enter Phone Number",
+              maxLength: 11,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Phone Number is required";
+                }
+                return null;
+              },
+            ),
             SizedBox(height: 16.h),
             RegistrationTextField(
               label: "Date of Birth",
               controller: _dobController,
-              hint: "dd-mm-yyyy",
+              hint: "Select Date of Birth",
+              readOnly: true,
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime(2000),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(), // 🚀 No future dates allowed
+                );
+
+                if (pickedDate != null) {
+                  final formatted = DateFormat('dd-MM-yyyy').format(pickedDate);
+                  _dobController.text = formatted;
+                }
+              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return "Date of Birth is required";
@@ -453,91 +462,91 @@ void initState() {
                 return null;
               },
             ),
+
             SizedBox(height: 16.h),
-         
-          LocationDropdown<Country>(
-            label: "Country",
-            hint: "Select Country",
-            value: _selectedCountry,
-            items: locationProvider.countries,
-            getLabel: (country) => country.capitalizedName,
-            isLoading: locationProvider.isLoadingCountries,
-            onChanged: (country) {
-              setState(() {
-                _selectedCountry = country;
-                _selectedState = null; // Reset state
-                _selectedLga = null; // Reset LGA
-              });
-              
-              if (country != null) {
-                // Load states for selected country
-                locationProvider.loadStates(country.id);
-              }
-            },
-            validator: (value) {
-              if (value == null) {
-                return "Country is required";
-              }
-              return null;
-            },
-          ),
 
-          SizedBox(height: 16.h),
-
-          // State Dropdown (only show if country is selected)
-          if (_selectedCountry != null) ...[
-            LocationDropdown<StateModel>(
-              label: "State/Region",
-              hint: "Select State",
-              value: _selectedState,
-              items: locationProvider.states,
-              getLabel: (state) => state.name,
-              isLoading: locationProvider.isLoadingStates,
-              onChanged: (state) {
+            LocationDropdown<Country>(
+              label: "Country",
+              hint: "Select Country",
+              value: _selectedCountry,
+              items: locationProvider.countries,
+              getLabel: (country) => country.capitalizedName,
+              isLoading: locationProvider.isLoadingCountries,
+              onChanged: (country) {
                 setState(() {
-                  _selectedState = state;
+                  _selectedCountry = country;
+                  _selectedState = null; // Reset state
                   _selectedLga = null; // Reset LGA
                 });
-                
-                if (state != null) {
-                  // Load LGAs for selected state
-                  locationProvider.loadLgas(state.id);
+
+                if (country != null) {
+                  // Load states for selected country
+                  locationProvider.loadStates(country.id);
                 }
               },
               validator: (value) {
                 if (value == null) {
-                  return "State is required";
+                  return "Country is required";
                 }
                 return null;
               },
             ),
-            SizedBox(height: 16.h),
-          ],
 
-          // LGA Dropdown (only show if state is selected)
-          if (_selectedState != null) ...[
-            LocationDropdown<Lga>(
-              label: "Local Government Area (LGA)",
-              hint: "Select LGA",
-              value: _selectedLga,
-              items: locationProvider.lgas,
-              getLabel: (lga) => lga.name,
-              isLoading: locationProvider.isLoadingLgas,
-              onChanged: (lga) {
-                setState(() {
-                  _selectedLga = lga;
-                });
-              },
-              validator: (value) {
-                if (value == null) {
-                  return "LGA is required";
-                }
-                return null;
-              },
-            ),
             SizedBox(height: 16.h),
-          ],
 
+            // State Dropdown (only show if country is selected)
+            if (_selectedCountry != null) ...[
+              LocationDropdown<StateModel>(
+                label: "State/Region",
+                hint: "Select State",
+                value: _selectedState,
+                items: locationProvider.states,
+                getLabel: (state) => state.name,
+                isLoading: locationProvider.isLoadingStates,
+                onChanged: (state) {
+                  setState(() {
+                    _selectedState = state;
+                    _selectedLga = null; // Reset LGA
+                  });
+
+                  if (state != null) {
+                    // Load LGAs for selected state
+                    locationProvider.loadLgas(state.id);
+                  }
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return "State is required";
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.h),
+            ],
+
+            // LGA Dropdown (only show if state is selected)
+            if (_selectedState != null) ...[
+              LocationDropdown<Lga>(
+                label: "Local Government Area (LGA)",
+                hint: "Select LGA",
+                value: _selectedLga,
+                items: locationProvider.lgas,
+                getLabel: (lga) => lga.name,
+                isLoading: locationProvider.isLoadingLgas,
+                onChanged: (lga) {
+                  setState(() {
+                    _selectedLga = lga;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return "LGA is required";
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.h),
+            ],
 
             RegistrationDropdown(
               label: "Marital Status",
@@ -567,10 +576,22 @@ void initState() {
               label: "Height(cm)",
               controller: _heightController,
               hint: "Enter Height in cm",
+              // maxLength: 3,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Height is required";
+                  return "This field is required";
                 }
+
+                final number = int.tryParse(value);
+
+                if (number == null) {
+                  return "Please enter a valid number";
+                }
+
+                if (number < 50 || number > 300) {
+                  return "Value must be between 50cm and 300cm";
+                }
+
                 return null;
               },
             ),
@@ -641,6 +662,7 @@ void initState() {
               label: "Phone Number",
               controller: _kinPhoneController,
               hint: "Enter Phone Number",
+              maxLength: 11,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return "Phone Number is required";
@@ -660,16 +682,15 @@ void initState() {
                 return null;
               },
             ),
-             SizedBox(height: 16.h),
+            SizedBox(height: 16.h),
             RegistrationDropdown(
               label: "Relationship",
               hint: "Select Relationship",
               value: _selectedKinRelationship,
               items: const [
-               
                 DropdownItem(value: 'Father', label: 'Father'),
                 DropdownItem(value: 'Mother', label: 'Mother'),
-                 DropdownItem(value: 'Brother', label: 'Brother'),
+                DropdownItem(value: 'Brother', label: 'Brother'),
                 DropdownItem(value: 'Sister', label: 'Sister'),
                 DropdownItem(value: 'Uncle', label: 'Uncle'),
                 DropdownItem(value: 'Aunt', label: 'Aunt'),
@@ -741,60 +762,60 @@ void initState() {
               //   return null;
               // },
             ),
-            SizedBox(height: 16.h),
-            RegistrationTextField(
-              label: "Country of Residence",
-              controller: _countryOfResidenceController,
-              hint: "Enter Country of Residence",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Country of Residence is required";
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 16.h),
-            RegistrationTextField(
-              label: "State of Residence",
-              controller: _stateOfResidenceController,
-              hint: "Enter State of Residence",
-              //   validator: (value) {
-              // if (value == null || value.isEmpty) {
-              //   return "State of Residence is required";
-              // }
-              // return null;
-              //  },
-            ),
-            SizedBox(height: 16.h),
-            RegistrationTextField(
-              label: "LGA of Residence",
-              controller: _lgaOfResidenceController,
-              hint: "Select LGA",
-              // validator: (value) {
-              //   if (value == null || value.isEmpty) {
-              //     return "LGA is required";
-              //   }
-              //   return null;
-              // },
-            ),
-            SizedBox(height: 16.h),
-            RegistrationTextField(
-              label: "State of Origin",
-              controller: _stateOfOriginController,
-              hint: "Enter State of Origin",
-              // validator: (value) {
-              //   if (value == null || value.isEmpty) {
-              //     return "State of Origin is required";
-              //   }
-              //   return null;
-              // },
-            ),
+            // SizedBox(height: 16.h),
+            // RegistrationTextField(
+            //   label: "Country of Residence",
+            //   controller: _countryOfResidenceController,
+            //   hint: "Enter Country of Residence",
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return "Country of Residence is required";
+            //     }
+            //     return null;
+            //   },
+            // ),
+            // SizedBox(height: 16.h),
+            // RegistrationTextField(
+            //   label: "State of Residence",
+            //   controller: _stateOfResidenceController,
+            //   hint: "Enter State of Residence",
+            //   //   validator: (value) {
+            //   // if (value == null || value.isEmpty) {
+            //   //   return "State of Residence is required";
+            //   // }
+            //   // return null;
+            //   //  },
+            // ),
+            // SizedBox(height: 16.h),
+            // RegistrationTextField(
+            //   label: "LGA of Residence",
+            //   controller: _lgaOfResidenceController,
+            //   hint: "Select LGA",
+            //   // validator: (value) {
+            //   //   if (value == null || value.isEmpty) {
+            //   //     return "LGA is required";
+            //   //   }
+            //   //   return null;
+            //   // },
+            // ),
+            // SizedBox(height: 16.h),
+            // RegistrationTextField(
+            //   label: "State of Origin",
+            //   controller: _stateOfOriginController,
+            //   hint: "Enter State of Origin",
+            //   // validator: (value) {
+            //   //   if (value == null || value.isEmpty) {
+            //   //     return "State of Origin is required";
+            //   //   }
+            //   //   return null;
+            //   // },
+            // ),
             SizedBox(height: 24.h),
             Text(
               "Misc Data",
               style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700),
             ),
-               SizedBox(height: 16.h),
+            SizedBox(height: 16.h),
             RegistrationDropdown(
               label: "Educational Qualification",
               hint: "Select Qualification",
@@ -831,7 +852,7 @@ void initState() {
                 return null;
               },
             ),
-         
+
             SizedBox(height: 16.h),
             RegistrationDropdown(
               label: "Citizen By",
@@ -868,7 +889,6 @@ void initState() {
               },
             ),
 
-          
             SizedBox(height: 24.h),
             Text(
               "Identity Verification",
@@ -883,23 +903,26 @@ void initState() {
                 DropdownItem(
                     value: 'NATIONAL_INSURANCE', label: 'National Insurance'),
                 DropdownItem(
-                    value: 'IMMIGRATION_DOCUMENT', label: "Immigration Document"),
-                   DropdownItem(
-                    value: 'NIGERIAN_PASSPORT',
-                    label: 'Nigerian Passport'),
+                    value: 'IMMIGRATION_DOCUMENT',
+                    label: "Immigration Document"),
                 DropdownItem(
-                    value: 'OTHER_PASSPORT', label: 'Other Passport'),
-                        DropdownItem(
-                    value: 'OTHER_TRAVEL_DOCUMENT', label: 'Other Travel Document'),
-                   DropdownItem(
-                    value: 'OTHER_NATIONAL_IDENTITY_CARD', label: 'Other National Identity Card'),
-                   DropdownItem(
-                    value: 'ANY_IDENTITY_REFERENCE', label: 'Any Identity Reference'),
-                   DropdownItem(
-                    value: 'NIGERIA_DRIVER_LICENCE', label: 'Nigeria Driver Licence'),
+                    value: 'NIGERIAN_PASSPORT', label: 'Nigerian Passport'),
+                DropdownItem(value: 'OTHER_PASSPORT', label: 'Other Passport'),
                 DropdownItem(
-                    value: 'OTHER_DESIGNATED_DOCUMENT', label: 'Other Passport'),
-               
+                    value: 'OTHER_TRAVEL_DOCUMENT',
+                    label: 'Other Travel Document'),
+                DropdownItem(
+                    value: 'OTHER_NATIONAL_IDENTITY_CARD',
+                    label: 'Other National Identity Card'),
+                DropdownItem(
+                    value: 'ANY_IDENTITY_REFERENCE',
+                    label: 'Any Identity Reference'),
+                DropdownItem(
+                    value: 'NIGERIA_DRIVER_LICENCE',
+                    label: 'Nigeria Driver Licence'),
+                DropdownItem(
+                    value: 'OTHER_DESIGNATED_DOCUMENT',
+                    label: 'Other Passport'),
               ],
               onChanged: (value) {
                 setState(() {
@@ -929,7 +952,21 @@ void initState() {
             RegistrationTextField(
               label: "Expiry Date",
               controller: _expiryDateController,
-              hint: "Enter Expiry Date",
+              hint: "Select Expiry Date",
+              readOnly: true,
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime.now(), // 🚀 Only future allowed
+                  lastDate: DateTime(2100),
+                );
+
+                if (pickedDate != null) {
+                  final formatted = DateFormat('dd-MM-yyyy').format(pickedDate);
+                  _expiryDateController.text = formatted;
+                }
+              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return "Expiry Date is required";

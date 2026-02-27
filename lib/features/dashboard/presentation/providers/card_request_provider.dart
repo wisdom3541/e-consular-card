@@ -43,7 +43,16 @@ class CardRequestProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> submitCardRequest() async {
+  Future<bool> submitCardRequest({
+   // required String requestType,
+    bool includeDelivery = false,
+    String? line1, 
+    String? line2, 
+    String? state, 
+    String? city,
+    String? zip, 
+    String? country, 
+  }) async {
     _setLoading(true);
     _setError(null);
 
@@ -55,7 +64,14 @@ class CardRequestProvider extends ChangeNotifier {
       }
 
       final response = await cardRequestDataSource!.requestCard(
-        includeDelivery: _includeDelivery,
+       // requestType: requestType,
+        includeDelivery: includeDelivery,
+        line1: line1,
+        line2: line2,
+        state: state,
+        city: city,
+        zip: zip,
+        country: country,
       );
 
       if (response.data != null) {

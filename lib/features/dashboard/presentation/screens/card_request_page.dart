@@ -45,7 +45,7 @@
 //           backgroundColor: Colors.green,
 //         ),
 //       );
-      
+
 //       // Navigate back to dashboard
 //       Navigator.pop(context);
 //     } else {
@@ -460,8 +460,13 @@
 //   }
 // }
 
+import 'package:e_consular_card/core/data/models/location_models.dart';
+import 'package:e_consular_card/core/presentation/providers/location_provider.dart';
 import 'package:e_consular_card/core/widget/common_app_bar.dart';
+import 'package:e_consular_card/core/widget/location_dropdown.dart';
+import 'package:e_consular_card/core/widget/phone_number_field.dart';
 import 'package:e_consular_card/features/auth/presentation/widget/common_widget.dart';
+import 'package:e_consular_card/features/auth/presentation/widget/registration_text_field.dart';
 import 'package:e_consular_card/features/dashboard/data/models/card_request_response.dart';
 import 'package:e_consular_card/features/dashboard/presentation/providers/card_request_provider.dart';
 import 'package:e_consular_card/features/dashboard/presentation/providers/dashboard_provider.dart';
@@ -471,6 +476,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+
 class CardRequestPage extends StatefulWidget {
   const CardRequestPage({Key? key}) : super(key: key);
 
@@ -479,24 +485,81 @@ class CardRequestPage extends StatefulWidget {
 }
 
 class _CardRequestPageState extends State<CardRequestPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _addressLine1Controller = TextEditingController();
+  final _addressLine2Controller = TextEditingController();
+
+  Country? _selectedCountry;
+  StateModel? _selectedState;
+  Lga? _selectedLga;
+  final _line1Controller = TextEditingController();
+  final _line2Controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _addressLine1Controller.dispose();
+    _addressLine2Controller.dispose();
+    _line1Controller.dispose();
+    _line2Controller.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
     // Reset any previous state
-       WidgetsBinding.instance.addPostFrameCallback((_) {
-       context.read<CardRequestProvider>().reset();
-     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CardRequestProvider>().reset();
+    });
     // Future.microtask(() {
     //   context.read<CardRequestProvider>().reset();
     // });
   }
 
   Future<void> _handleSubmitRequest() async {
+
+    if (context.read<CardRequestProvider>().includeDelivery) {
+
+    
+
+    if (_formKey.currentState!.validate()) {
+                              // Get selected IDs
+                              final countryId = _selectedCountry?.name;
+                              final stateId = _selectedState?.id;
+                              final lgaId = _selectedLga?.id;
+
+                              print('Country ID: $countryId');
+                              print('State ID: $stateId');
+                              print('LGA ID: $lgaId');
+                              // print('Phone: ${_phoneController.text}');
+
+                              // Submit to API
+                            } else {
+                              // Show validation errors
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please fill all required fields'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+
+  }
     final provider = context.read<CardRequestProvider>();
 
     showLoadingDialog(context);
 
-    final success = await provider.submitCardRequest();
+    final success = await provider.submitCardRequest(
+      // requestType: _selectedRequestType!,
+      includeDelivery: provider.includeDelivery,
+      line1: provider.includeDelivery ? _line1Controller.text.trim() : null,
+      line2: provider.includeDelivery ? _line2Controller.text.trim() : null,
+      state: provider.includeDelivery ? _selectedState?.name : null,
+      city: provider.includeDelivery ? _selectedLga?.name : null,
+      // zip: _includeDelivery ? _zipController.text.trim() : null,
+      country: provider.includeDelivery ? _selectedCountry?.name : null,
+    );
 
     if (!mounted) return;
     hideLoadingDialog(context);
@@ -512,65 +575,82 @@ class _CardRequestPageState extends State<CardRequestPage> {
     }
   }
 
+  void _showPaymentSummary(CardRequestData request) {
 
+   // var totalAmount =  request.amount;
 
-void _showPaymentSummary(CardRequestData request) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      title: Row(
-        children: [
-          Icon(Icons.check_circle, color: Colors.green, size: 28.sp),
-          SizedBox(width: 12.w),
-          const Text('Request Initiated'),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Transaction ID:',
-            style: TextStyle(
-              fontSize: 13.sp,
-              color: Colors.grey.shade600,
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 28.sp),
+            SizedBox(width: 12.w),
+            const Text('Request Initiated'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Transaction ID:',
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Colors.grey.shade600,
+              ),
             ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            request.transactionId,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w600,
+            SizedBox(height: 4.h),
+            Text(
+              request.transactionId,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'Services:',
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w600,
+            SizedBox(height: 16.h),
+            Text(
+              'Services:',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          SizedBox(height: 8.h),
-          ...request.services.map((service) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: 8.h),
-              child: Row(
+            SizedBox(height: 8.h),
+            ...request.services.map((service) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: 8.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        service.name,
+                        style: TextStyle(fontSize: 13.sp),
+                      ),
+                    ),
+                    Text(
+                      '\$${service.price.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            if (request.isDeliveryIncluded) ...[
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      service.name,
-                      style: TextStyle(fontSize: 13.sp),
-                    ),
-                  ),
+                  Text('Delivery', style: TextStyle(fontSize: 13.sp)),
                   Text(
-                    '\$${service.price.toStringAsFixed(2)}',
+                   request.deliveryCost != null ? '\$${request.deliveryCost!}' : 'N/A',
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
@@ -578,246 +658,236 @@ void _showPaymentSummary(CardRequestData request) {
                   ),
                 ],
               ),
-            );
-          }),
-          if (request.isDeliveryIncluded) ...[
+            ],
+            Divider(height: 24.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Delivery', style: TextStyle(fontSize: 13.sp)),
                 Text(
-                  '\$25.00',
+                  'Total Amount:',
                   style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                
+                Text(
+                  '\$${request.amount.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
             ),
           ],
-          Divider(height: 24.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Total Amount:',
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                '\$${request.amount.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context); // Close dialog
-            Navigator.pop(context); // Go back to dashboard
-          },
-          child: const Text('Close'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-            _handleProceedToPayment(request);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-          ),
-          child: const Text('Proceed to Payment',style: TextStyle(color: Colors.white),),
-        ),
-      ],
-    ),
-  );
-}
-
-Future<void> _handleProceedToPayment(CardRequestData request) async {
-  final paymentProvider = context.read<PaymentProcessingProvider>();
-
-  // Show loading
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => const Center(
-      child: CircularProgressIndicator(),
-    ),
-  );
-
-  // Initialize payment
-  final paymentData = await paymentProvider.initializePayment();
-
-  if (!mounted) return;
-  Navigator.pop(context); // Close loading
-
-  if (paymentData != null) {
-    // Open payment webview
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaymentWebViewPage(
-          checkoutUrl: paymentData.checkoutUrl,
-          reference: paymentData.reference,
-          amount: paymentData.amount,
-        ),
-      ),
-    );
-
-    if (!mounted) return;
-
-    // Handle payment result
-    if (result == null) return;
-
-if (result['status'] == 'verify') {
-  await _verifyPayment(result['reference']);
-} else if (result['status'] == 'cancelled') {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Payment cancelled'),
-      backgroundColor: Colors.orange,
-    ),
-  );
-}
-
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          paymentProvider.errorMessage ?? 'Failed to initialize payment',
-        ),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
-}
-
-Future<void> _verifyPayment(String reference) async {
-  final paymentProvider = context.read<PaymentProcessingProvider>();
-
-  // Show loading
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => const Center(
-      child: CircularProgressIndicator(),
-    ),
-  );
-
-  // Verify payment
-  final isVerified = await paymentProvider.verifyPayment(reference);
-
-  if (!mounted) return;
-  Navigator.pop(context); // Close loading
-
-  if (isVerified) {
-    // Payment successful
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 32.sp),
-            SizedBox(width: 12.w),
-            const Text('Payment Successful!'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Your payment has been confirmed. Your card request is being processed.',
-              style: TextStyle(fontSize: 14.sp),
-            ),
-            SizedBox(height: 16.h),
-            if (paymentProvider.verificationResult != null)
-              Container(
-                padding: EdgeInsets.all(12.w),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Reference:',
-                          style: TextStyle(fontSize: 13.sp),
-                        ),
-                        Text(
-                          reference,
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Amount:',
-                          style: TextStyle(fontSize: 13.sp),
-                        ),
-                        Text(
-                          '\$${paymentProvider.verificationResult!.amount.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-          ],
         ),
         actions: [
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Go back to dashboard
-              
-              // Refresh dashboard
-              context.read<DashboardProvider>().loadDashboardData();
+            },
+            child: const Text('Close'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleProceedToPayment(request);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
             ),
-            child: const Text('Done'),
+            child: const Text(
+              'Proceed to Payment',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
     );
-  } else {
-    // Payment verification failed
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          paymentProvider.errorMessage ?? 'Payment verification failed',
-        ),
-        backgroundColor: Colors.red,
+  }
+
+  Future<void> _handleProceedToPayment(CardRequestData request) async {
+    final paymentProvider = context.read<PaymentProcessingProvider>();
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
       ),
     );
+
+    // Initialize payment
+    final paymentData = await paymentProvider.initializePayment();
+
+    if (!mounted) return;
+    Navigator.pop(context); // Close loading
+
+    if (paymentData != null) {
+      // Open payment webview
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentWebViewPage(
+            checkoutUrl: paymentData.checkoutUrl,
+            reference: paymentData.reference,
+            amount: paymentData.amount,
+          ),
+        ),
+      );
+
+      if (!mounted) return;
+
+      // Handle payment result
+      if (result == null) return;
+
+      if (result['status'] == 'verify') {
+        await _verifyPayment(result['reference']);
+      } else if (result['status'] == 'cancelled') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Payment cancelled'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            paymentProvider.errorMessage ?? 'Failed to initialize payment',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-}
+
+  Future<void> _verifyPayment(String reference) async {
+    final paymentProvider = context.read<PaymentProcessingProvider>();
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    // Verify payment
+    final isVerified = await paymentProvider.verifyPayment(reference);
+
+    if (!mounted) return;
+    Navigator.pop(context); // Close loading
+
+    if (isVerified) {
+      // Payment successful
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 32.sp),
+              SizedBox(width: 12.w),
+              const Text('Payment Successful!'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Your payment has been confirmed. Your card request is being processed.',
+                style: TextStyle(fontSize: 14.sp),
+              ),
+              SizedBox(height: 16.h),
+              if (paymentProvider.verificationResult != null)
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Reference:',
+                            style: TextStyle(fontSize: 13.sp),
+                          ),
+                          Text(
+                            reference,
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Amount:',
+                            style: TextStyle(fontSize: 13.sp),
+                          ),
+                          Text(
+                            '\$${paymentProvider.verificationResult!.amount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Go back to dashboard
+
+                // Refresh dashboard
+                context.read<DashboardProvider>().loadDashboardData();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
+              child: const Text('Done',style: TextStyle(color: Colors.white),),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Payment verification failed
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            paymentProvider.errorMessage ?? 'Payment verification failed',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CardRequestProvider>();
+
+    final locationProvider = context.watch<LocationProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -958,6 +1028,116 @@ Future<void> _verifyPayment(String reference) async {
                 ),
               ),
 
+              if (provider.includeDelivery) ...[
+                SizedBox(height: 20.h),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // Address Line 1
+                      RegistrationTextField(
+                        controller: _line1Controller,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Address Line 1 is required';
+                          }
+                          return null;
+                        },
+                        label: 'Address Line 1 *',
+                        hint: '123 Main St',
+                      ),
+                      SizedBox(height: 12.h),
+
+                      // Address Line 2
+                      RegistrationTextField(
+                        controller: _line2Controller,
+                        label: 'Address Line 2 (Optional)',
+                        hint: 'Apt, Suite, Building',
+                      ),
+                      SizedBox(height: 12.h),
+
+                      // Country Dropdown
+                      LocationDropdown<Country>(
+                        label: "Country",
+                        hint: "Select Country",
+                        value: _selectedCountry,
+                        items: locationProvider.countries,
+                        getLabel: (country) => country.capitalizedName,
+                        isLoading: locationProvider.isLoadingCountries,
+                        onChanged: (country) {
+                          setState(() {
+                            _selectedCountry = country;
+                            _selectedState = null;
+                            _selectedLga = null;
+                          });
+
+                          if (country != null) {
+                            locationProvider.loadStates(country.id);
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null) return "Country is required";
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: 16.h),
+
+                      // State Dropdown
+                      if (_selectedCountry != null)
+                        LocationDropdown<StateModel>(
+                          label: "State",
+                          hint: "Select State",
+                          value: _selectedState,
+                          items: locationProvider.states,
+                          getLabel: (state) => state.name,
+                          isLoading: locationProvider.isLoadingStates,
+                          onChanged: (state) {
+                            setState(() {
+                              _selectedState = state;
+                              _selectedLga = null;
+                            });
+
+                            if (state != null) {
+                              locationProvider.loadLgas(state.id);
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null) return "State is required";
+                            return null;
+                          },
+                        ),
+
+                      SizedBox(height: 16.h),
+
+                      // LGA Dropdown
+                      if (_selectedState != null)
+                        LocationDropdown<Lga>(
+                          label: "LGA",
+                          hint: "Select LGA",
+                          value: _selectedLga,
+                          items: locationProvider.lgas,
+                          getLabel: (lga) => lga.name,
+                          isLoading: locationProvider.isLoadingLgas,
+                          onChanged: (lga) {
+                            setState(() {
+                              _selectedLga = lga;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null) return "LGA is required";
+                            return null;
+                          },
+                        ),
+
+                      SizedBox(height: 16.h),
+
+                     
+                    ],
+                  ),
+                ),
+              ],
+
               SizedBox(height: 20.h),
 
               // Payment Summary
@@ -965,7 +1145,10 @@ Future<void> _verifyPayment(String reference) async {
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.8)
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

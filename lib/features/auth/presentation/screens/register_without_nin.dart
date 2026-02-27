@@ -232,6 +232,14 @@ class _RegisterWithoutNinPageState extends State<RegisterWithoutNinPage> {
           SizedBox(height: 16.h),
 
           // Password
+           Text(
+                    'Password*',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                     // fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
           PasswordField(
             title: "Password*",
             hint: "Create a Password",
@@ -241,6 +249,14 @@ class _RegisterWithoutNinPageState extends State<RegisterWithoutNinPage> {
           SizedBox(height: 16.h),
 
           // Confirm Password
+           Text(
+                    'Confirm Password*',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                     // fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
           PasswordField(
             title: "Confirm Password*",
             hint: "Confirm Password",

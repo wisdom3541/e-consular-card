@@ -7,7 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/navigation/main_navigation.dart';
 
 class SplashScreenPage extends StatefulWidget {
-  const SplashScreenPage({Key? key}) : super(key: key);
+  const SplashScreenPage({super.key});
 
   @override
   State<SplashScreenPage> createState() => _SplashScreenPageState();

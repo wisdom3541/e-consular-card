@@ -35,6 +35,8 @@ class DashboardProvider extends ChangeNotifier {
 
   DashboardProvider({this.dashboardDataSource});
   // Getters
+
+  
   
   UserCardRequest? get userCardRequest => _userCardRequest;
   FilterType get selectedFilter => _selectedFilter;
@@ -47,7 +49,7 @@ class DashboardProvider extends ChangeNotifier {
   bool get registrationManuallyCompleted => _registrationManuallyCompleted; // ADD THIS
 
   
-  bool get hasCardRequest => _userCardRequest != null;
+
 
 
   DashboardUser? get user => _user;
@@ -57,6 +59,17 @@ class DashboardProvider extends ChangeNotifier {
   
   bool get hasDashboardData => _user != null;
   String get userName => _user?.fullName ?? 'User';
+
+  
+  // ADD these getters for card status
+  String? get cardReqStatus => _data?.cardReqStatus;
+  CardStatus? get cardStatus => _data?.cardStatus;
+  bool get hasCardRequest => _data?.hasCardRequest ?? false;
+  bool get isCardApproved => _data?.isCardApproved ?? false;
+  bool get hasActiveCard => _data?.hasActiveCard ?? false;
+  bool get needsToCollectCard => _data?.needsToCollectCard ?? false;
+
+  DashboardData? _data;
 
   // Methods
   void setUserName(String name) {
@@ -103,7 +116,7 @@ class DashboardProvider extends ChangeNotifier {
       }
 
       final response = await dashboardDataSource!.getDashboardData();
-
+      _data = response.data; // Store the entire response for card status access
       _user = response.data.user;
       _stats = response.data.stats;
       _recentTransactions = response.data.recentTransactions;

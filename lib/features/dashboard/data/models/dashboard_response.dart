@@ -22,12 +22,16 @@ class DashboardData {
   final DashboardStats stats;
   final List<RecentTransaction> recentTransactions;
   final PaginationInfo pagination;
+  final String? cardReqStatus; 
+  final CardStatus? cardStatus;
 
   DashboardData({
     required this.user,
     required this.stats,
     required this.recentTransactions,
     required this.pagination,
+    this.cardReqStatus,
+    this.cardStatus,
   });
 
   factory DashboardData.fromJson(Map<String, dynamic> json) {
@@ -39,9 +43,21 @@ class DashboardData {
               .toList() ??
           [],
       pagination: PaginationInfo.fromJson(json['pagination']),
+      cardReqStatus: json['card_req_status']?.toString(), 
+      cardStatus: json['card_status'] != null 
+          ? CardStatus.fromJson(json['card_status'])
+          : null,
     );
   }
+
+   // Helper getters
+  bool get hasCardRequest => cardReqStatus != null && cardReqStatus != 'false';
+  bool get isCardApproved => cardReqStatus?.toUpperCase() == 'APPROVED';
+  bool get hasActiveCard => cardStatus?.isActive ?? false;
+  bool get needsToCollectCard => cardStatus?.needsDeliveryCode ?? false;
 }
+
+
 
 class DashboardUser {
   final String id;
@@ -249,4 +265,136 @@ class PaginationInfo {
       perPage: json['per_page'] ?? 10,
     );
   }
+}
+
+
+// Add this at the bottom of the file
+
+class CardStatus {
+  final String cardNo;
+  final bool alert;
+  final String status;
+  final String note;
+  final bool printed;
+  final String? deliveryCode;
+  final bool delivered;
+  final String? printedAt;
+  final CardDetails? card;
+  final bool? paidDelivery;
+
+  CardStatus({
+    required this.cardNo,
+    required this.alert,
+    required this.status,
+    required this.note,
+    required this.printed,
+    this.deliveryCode,
+    required this.delivered,
+    this.printedAt,
+    this.card,
+    this.paidDelivery,
+  });
+
+  factory CardStatus.fromJson(Map<String, dynamic> json) {
+    return CardStatus(
+      cardNo: json['cardno']?.toString() ?? 'NA',
+      alert: json['alert'] == true || json['alert'] == 1,
+      status: json['status']?.toString() ?? 'none',
+      note: json['note']?.toString() ?? '',
+      printed: json['printed'] == true || json['printed'] == 1,
+      deliveryCode: json['delivery_code']?.toString(),
+      delivered: json['delivered'] == true || json['delivered'] == 1,
+      printedAt: json['printed_at']?.toString(),
+      card: json['card'] != null ? CardDetails.fromJson(json['card']) : null,
+      paidDelivery: json['paid_delivery'] == true || json['paid_delivery'] == 1,
+    );
+  }
+
+  // Helper getters
+  bool get hasCard => status != 'none';
+  bool get isActive => status == 'active';
+  bool get isPrinted => printed;
+  bool get isDelivered => delivered;
+  bool get needsDeliveryCode => printed && !delivered && deliveryCode != null;
+  bool get hasPaidDelivery => paidDelivery == true;
+}
+
+class CardDetails {
+  final String id;
+  final String userId;
+  final String paymentId;
+  final String citizenCardNo;
+  final String requestType;
+  final String requestKey;
+  final String status;
+  final String paymentStatus;
+  final String? approvedBy;
+  final String countryId;
+  final bool cardPrinted;
+  final String? deliveryCode;
+  final bool cardDelivered;
+  final bool exported;
+  final String? token;
+  final String? qrBase64;
+  final String? printedAt;
+  final String? deliveredAt;
+  final String expirationDate;
+  final bool paidDelivery;
+  final String createdAt;
+  final String updatedAt;
+
+  CardDetails({
+    required this.id,
+    required this.userId,
+    required this.paymentId,
+    required this.citizenCardNo,
+    required this.requestType,
+    required this.requestKey,
+    required this.status,
+    required this.paymentStatus,
+    this.approvedBy,
+    required this.countryId,
+    required this.cardPrinted,
+    this.deliveryCode,
+    required this.cardDelivered,
+    required this.exported,
+    this.token,
+    this.qrBase64,
+    this.printedAt,
+    this.deliveredAt,
+    required this.expirationDate,
+    required this.paidDelivery,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory CardDetails.fromJson(Map<String, dynamic> json) {
+    return CardDetails(
+      id: json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      paymentId: json['payment_id']?.toString() ?? '',
+      citizenCardNo: json['citizen_card_no']?.toString() ?? '',
+      requestType: json['request_type']?.toString() ?? '',
+      requestKey: json['request_key']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      paymentStatus: json['payment_status']?.toString() ?? '',
+      approvedBy: json['approved_by']?.toString(),
+      countryId: json['country_id']?.toString() ?? '',
+      cardPrinted: json['card_printed'] == 1 || json['card_printed'] == true,
+      deliveryCode: json['delivery_code']?.toString(),
+      cardDelivered: json['card_delivered'] == 1 || json['card_delivered'] == true,
+      exported: json['exported'] == 1 || json['exported'] == true,
+      token: json['token']?.toString(),
+      qrBase64: json['qr_base64']?.toString(),
+      printedAt: json['printed_at']?.toString(),
+      deliveredAt: json['delivered_at']?.toString(),
+      expirationDate: json['expiration_date']?.toString() ?? '',
+      paidDelivery: json['paid_delivery'] == true || json['paid_delivery'] == 1,
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
+    );
+  }
+
+  bool get isApproved => status.toUpperCase() == 'APPROVED';
+  bool get isPaid => paymentStatus.toUpperCase() == 'PAID';
 }

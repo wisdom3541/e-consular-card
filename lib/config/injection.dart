@@ -5,6 +5,7 @@ import 'package:e_consular_card/features/dashboard/data/datasources/card_request
 import 'package:e_consular_card/features/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import 'package:e_consular_card/features/payments/data/datasources/payment_remote_datasource.dart';
 import 'package:e_consular_card/features/signature/data/datasources/segnature_remote_datasource.dart';
+import 'package:e_consular_card/features/support/data/datasources/support_remote_datasource.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,9 +56,13 @@ Future<void> setupDependencies() async {
     () => PaymentRemoteDataSourceImpl(apiService: getIt()),
   );
 
-
   // Location
   getIt.registerLazySingleton<LocationRemoteDataSource>(
     () => LocationRemoteDataSourceImpl(apiService: getIt()),
+  );
+
+  // Support
+  getIt.registerLazySingleton<SupportRemoteDataSource>(
+    () => SupportRemoteDataSourceImpl(apiService: getIt()),
   );
 }

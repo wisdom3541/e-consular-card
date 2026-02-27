@@ -4,8 +4,16 @@ import '../../../../core/errors/exceptions.dart';
 import '../models/card_request_response.dart';
 
 abstract class CardRequestRemoteDataSource {
-  Future<CardRequestResponse> requestCard({required bool includeDelivery});
-}
+ Future<CardRequestResponse> requestCard({
+   // required String requestType,
+    bool includeDelivery = false, // ADD THIS
+    String? line1, // ADD THIS
+    String? line2, // ADD THIS
+    String? state, // ADD THIS
+    String? city, // ADD THIS
+    String? zip, // ADD THIS
+    String? country, // ADD THIS
+  });}
 
 class CardRequestRemoteDataSourceImpl implements CardRequestRemoteDataSource {
   final ApiService apiService;
@@ -14,15 +22,39 @@ class CardRequestRemoteDataSourceImpl implements CardRequestRemoteDataSource {
   CardRequestRemoteDataSourceImpl({required this.apiService});
 
   @override
-  Future<CardRequestResponse> requestCard({required bool includeDelivery}) async {
+  Future<CardRequestResponse> requestCard(
+      {
+        //required String requestType,
+    bool includeDelivery = false,
+    String? line1,
+    String? line2,
+    String? state,
+    String? city,
+    String? zip,
+    String? country,}) async {
     try {
       print('🎫 Requesting card with delivery: $includeDelivery');
 
+  // Build request body
+      final Map<String, dynamic> requestBody = {
+       // 'request_type': requestType,
+        'include_delivery': includeDelivery,
+      };
+
+       if (includeDelivery) {
+        requestBody.addAll({
+          'line1': line1,
+          'line2': line2,
+          'state': state,
+          'city': city,
+          'zip': "0",
+          'country': country,
+        });
+      }
+
       final response = await apiService.post(
-        '$baseUrlExt/econsular/request-card', // TODO: Update endpoint if different
-        data: {
-          'include_delivery': includeDelivery,
-        },
+          '$baseUrlExt/econsular/request-card',
+          data: requestBody,
       );
 
       print('Card request response status: ${response.statusCode}');
@@ -30,7 +62,8 @@ class CardRequestRemoteDataSourceImpl implements CardRequestRemoteDataSource {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         try {
-          final cardRequestResponse = CardRequestResponse.fromJson(response.data);
+          final cardRequestResponse =
+              CardRequestResponse.fromJson(response.data);
 
           if (cardRequestResponse.isSuccess) {
             print('✅ Card request initiated successfully');
@@ -66,7 +99,8 @@ class CardRequestRemoteDataSourceImpl implements CardRequestRemoteDataSource {
         );
       } else if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {
-        throw NetworkException(message: 'Connection timeout. Please try again.');
+        throw NetworkException(
+            message: 'Connection timeout. Please try again.');
       } else if (e.type == DioExceptionType.unknown) {
         throw NetworkException(message: 'No internet connection');
       } else {

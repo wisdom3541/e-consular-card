@@ -6,12 +6,14 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final Widget? trailing;
   final bool showBackButton;
+  final Color titleColor;
 
   const CommonAppBar({
     Key? key,
-    this.title = "IDOCREQUEST",
+    this.title = "E-Consular Card",
     this.trailing,
     this.showBackButton = false,
+    this.titleColor = AppColors.primaryDark,
   }) : super(key: key);
 
   @override

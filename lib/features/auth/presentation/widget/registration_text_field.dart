@@ -9,7 +9,10 @@ class RegistrationTextField extends StatefulWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final bool? enabled;
-  final int? lines;
+  final bool? readOnly;
+  final int? maxLines;
+  final int? maxLength;
+  final void Function()? onTap;
   final String? Function(String?)? validator;
 
   const RegistrationTextField({
@@ -19,8 +22,11 @@ class RegistrationTextField extends StatefulWidget {
     required this.hint,
     this.obscureText = false,
     this.suffixIcon,
-    this.lines,
+    this.maxLines,
+    this.maxLength,
+    this.readOnly,
     this.enabled,
+    this.onTap,
     this.validator,
   }) : super(key: key);
 
@@ -60,17 +66,20 @@ class _RegistrationTextFieldState extends State<RegistrationTextField> {
         SizedBox(height: 8.h),
         TextFormField(
           controller: widget.controller,
+          onTap: widget.onTap ?? () {},
           obscureText: widget.obscureText,
-          
           obscuringCharacter: "*",
-          enabled: widget.enabled ,
+          enabled: widget.enabled,
+          readOnly: widget.readOnly ?? false,
           validator: widget.validator,
-          maxLines: widget.lines ?? 1,
+          maxLines: widget.maxLines ?? 1,
+          maxLength: widget.maxLength,
           decoration: InputDecoration(
             filled: true,
-            fillColor: isTyping
-                ? const Color.fromRGBO(232, 245, 239, 1)
-                : const Color.fromRGBO(252, 255, 253, 1),
+            fillColor: const Color.fromRGBO(252, 255, 253, 1),
+            // isTyping
+            //     ? const Color.fromRGBO(232, 245, 239, 1)
+            //     : const Color.fromRGBO(252, 255, 253, 1),
             hintText: widget.hint,
             hintStyle: TextStyle(
               color: const Color.fromRGBO(189, 189, 189, 1),

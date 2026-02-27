@@ -9,7 +9,7 @@ Widget buildAuthAppBar() {
     color: const Color(0xff1a6c41),
     alignment: Alignment.centerLeft,
     child: Text(
-      "IDOCREQUEST",
+      "E-Consular Card",
       style: TextStyle(
         fontSize: 20.sp,
         color: Colors.white,
